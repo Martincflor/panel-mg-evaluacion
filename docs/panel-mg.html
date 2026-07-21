@@ -443,6 +443,47 @@
     _dirty:false
   };
 
+  const CASOS_CLINICOS = [
+    {
+      id:1, edad:28, sexo:"Mujer", titulo:"MG ocular pura",
+      presentacion:"Visión doble y caída de párpado desde hace 4 semanas",
+      diagnostico:"MG seronegativa",
+      eval1:{mgfa:"I", qmg:8, mgadl:4, mgc:10, qol:18},
+      eval2:{mgfa:"I", qmg:2, mgadl:0, mgc:2, qol:6, mes:3},
+      tratamiento:"Timectomía + Piridostigmina",
+      desenlace:"Remisión clínica completa a 6 meses"
+    },
+    {
+      id:2, edad:52, sexo:"Hombre", titulo:"MG generalizada leve-moderada",
+      presentacion:"Debilidad progresiva en brazos + habla nasal desde 8 semanas",
+      diagnostico:"MG seronegativo con predominio bulbar",
+      eval1:{mgfa:"IIb", qmg:16, mgadl:9, mgc:24, qol:32},
+      eval2:{mgfa:"IIa", qmg:7, mgadl:3, mgc:9, qol:14, mes:6},
+      tratamiento:"Timectomía + Azatioprina",
+      desenlace:"Mejora multidimensional, regresa al trabajo"
+    },
+    {
+      id:3, edad:68, sexo:"Mujer", titulo:"MG grave (crisis miasténica)",
+      presentacion:"Ingreso a urgencias con disnea progresiva, disartria severa",
+      diagnostico:"Exacerbación aguda con insuficiencia respiratoria",
+      eval1:{mgfa:"IVb", qmg:"~32", mgadl:"~20", mgc:"~40", qol:"N/A"},
+      eval2:{mgfa:"IIIb", qmg:18, mgadl:10, mgc:22, qol:38, mes:2},
+      tratamiento:"UCI, Plasmaféresis, Metilprednisolona, Timectomía",
+      desenlace:"Extubada en 8 días, recuperación progresiva"
+    },
+    {
+      id:4, edad:35, sexo:"Mujer", titulo:"Respuesta a timectomía",
+      presentacion:"MG clase IIIa, 2 años de evolución, fallo terapéutico",
+      diagnostico:"MG generalizada moderada",
+      eval1:{mgfa:"IIIa", qmg:22, mgadl:12, mgc:28, qol:42},
+      eval2:{mgfa:"IIa", qmg:14, mgadl:6, mgc:14, qol:24, mes:3},
+      eval3:{mgfa:"IIa", qmg:10, mgadl:4, mgc:8, qol:16, mes:12},
+      eval4:{mgfa:"I", qmg:4, mgadl:0, mgc:2, qol:6, mes:24},
+      tratamiento:"Timectomía + Azatioprina (discontinuada a los 24 m)",
+      desenlace:"Remisión clínica sostenida, remisión completa a 24 meses"
+    }
+  ];
+
   const SECTIONS = [
     {key:"patient", label:"Datos del paciente"},
     {key:"mgfa", label:"Clasificación MGFA"},
@@ -450,7 +491,8 @@
     {key:"mgc", label:"MGC", max:50},
     {key:"mgadl", label:"MG-ADL", max:24},
     {key:"qol", label:"MG-QOL15", max:60},
-    {key:"summary", label:"Resumen y seguimiento"}
+    {key:"summary", label:"Resumen y seguimiento"},
+    {key:"casos", label:"Casos clínicos"}
   ];
   let active = "patient";
   let scoreCache = {};
@@ -998,9 +1040,40 @@
     else if(active==="mgadl") renderScalePanel(panel, {title:"MG-ADL — Actividades de la Vida Diaria", desc:"Cuestionario de 8 preguntas que evalúa el impacto funcional cotidiano, respondido por el paciente o su cuidador.", items:MGADL_ITEMS, scaleObj:state.mgadl, key:"mgadl", max:24, scaleKey:"mgadl", prev:"mgc", next:"qol"});
     else if(active==="qol") renderScalePanel(panel, {title:"MG-QOL15 — Calidad de vida", desc:"Cuestionario de 15 reactivos sobre el impacto de la enfermedad en la calidad de vida relacionada con la salud.", items:QOL_ITEMS, scaleObj:state.qol, key:"qol", max:60, scaleKey:"qol", isLikert:true, prev:"mgadl", next:"summary", approxNote:"Los reactivos se presentan parafraseados a partir de los dominios conceptuales habituales del instrumento (autonomía, vida social, estado de ánimo, carga familiar, incertidumbre por fluctuación de síntomas), y no reproducen el texto exacto con derechos de autor de la versión original (MG-QOL15r, Burns et al.)."});
     else if(active==="summary") renderSummaryPanel(panel);
+    else if(active==="casos") renderCasosPanel(panel);
     drawWaveform();
     clearCacheIfDirty();
     saveStateToStorage();
+  }
+
+  function renderCasosPanel(container){
+    container.appendChild(panelHeader("Casos Clínicos","4 escenarios reales de evaluación y seguimiento de miastenia gravis. Aprende cómo interpretar las escalas en contexto clínico."));
+    const casos = document.createElement("div");
+    casos.style.cssText = "display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:16px; margin-top:16px;";
+    CASOS_CLINICOS.forEach(c=>{
+      const card = document.createElement("div");
+      card.style.cssText = "border:1px solid var(--border); border-radius:12px; padding:16px; background:var(--surface-alt); cursor:pointer; transition:all .2s;";
+      card.onmouseover = ()=>card.style.boxShadow = "0 4px 12px rgba(22,33,58,.1)";
+      card.onmouseout = ()=>card.style.boxShadow = "none";
+      card.innerHTML = `<div style="font-family:var(--font-mono); font-size:12px; color:var(--ink-faint); margin-bottom:8px;">CASO ${c.id}</div>
+        <h3 style="font-size:15px; margin-bottom:4px;">${c.titulo}</h3>
+        <p style="font-size:12px; color:var(--ink-soft); margin:0 0 10px 0;">${c.edad}a, ${c.sexo}</p>
+        <div style="font-size:13px; color:var(--ink); margin-bottom:10px;">
+          <strong>Presentación:</strong> ${c.presentacion.substring(0, 60)}...
+        </div>
+        <div style="display:flex; gap:8px; flex-wrap:wrap;">
+          <span style="background:var(--sev0-bg); color:var(--sev0); font-size:11px; padding:4px 8px; border-radius:20px; font-weight:600;">MGFA ${c.eval1.mgfa}</span>
+          <span style="background:var(--sev1-bg); color:var(--sev1); font-size:11px; padding:4px 8px; border-radius:20px; font-weight:600;">QMG ${c.eval1.qmg}</span>
+        </div>`;
+      card.onclick = ()=>alert(`${c.titulo} (${c.edad}a)\n\n${c.presentacion}\n\nDiagnóstico: ${c.diagnostico}\n\nEvaluación inicial:\n• MGFA: ${c.eval1.mgfa}\n• QMG: ${c.eval1.qmg}\n• MG-ADL: ${c.eval1.mgadl}\n• MGC: ${c.eval1.mgc}\n• QOL15: ${c.eval1.qol}\n\nTratamiento: ${c.tratamiento}\n\nDesenlace: ${c.desenlace}`);
+      casos.appendChild(card);
+    });
+    container.appendChild(casos);
+    const info = document.createElement("div");
+    info.style.cssText = "margin-top:20px; padding:14px; background:var(--teal-light); border-radius:10px; border-left:4px solid var(--teal);";
+    info.innerHTML = '<strong style="color:var(--teal);">💡 Cómo usar:</strong> Haz click en cualquier caso para ver detalles completos. Cada caso muestra evaluaciones inicial y de seguimiento, demostrando cómo interpretar el cambio clínico.';
+    container.appendChild(info);
+    addNavButtons(container, "summary", null);
   }
 
   // Patient bar bindings
