@@ -1,0 +1,1411 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Panel MG - Evaluación en Miastenia Gravis</title>
+<script>
+  window.location.href = './panel-mg.html';
+</script>
+<meta name="theme-color" content="#1A2A4A">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="apple-touch-icon" href="icon.svg">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+:root{
+  --navy:#1A2A4A;--blue:#185FA5;--blue-soft:#E6F1FB;--blue-mid:#B5D4F4;
+  --teal:#0F6E56;--teal-soft:#E1F5EE;--teal-mid:#9FE1CB;
+  --amber:#854F0B;--amber-soft:#FAEEDA;--amber-mid:#FAC775;
+  --red:#A32D2D;--red-soft:#FCEBEB;--red-mid:#F7C1C1;
+  --purple:#534AB7;--purple-soft:#EEEDFE;--purple-mid:#CECBF6;
+  --ink:#23262b;--muted:#6b6f76;--line:#e3e6ec;--bg:#f4f6fa;--card:#ffffff;
+  --radius:14px;--radius-sm:10px;--shadow:0 1px 4px rgba(20,30,50,.07);
+}
+html{scroll-behavior:smooth}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;background:var(--bg);color:var(--ink);font-size:15px;line-height:1.55;min-height:100vh;padding-bottom:env(safe-area-inset-bottom,0)}
+.wrap{max-width:760px;margin:0 auto;padding:14px 14px 90px}
+
+/* HEADER */
+header{text-align:center;padding:22px 0 6px}
+.badge{display:inline-flex;align-items:center;gap:6px;background:var(--navy);color:#fff;font-size:11px;font-weight:700;padding:5px 14px;border-radius:20px;margin-bottom:12px;letter-spacing:.4px}
+header h1{font-size:22px;font-weight:800;color:var(--navy);letter-spacing:-.3px;line-height:1.25}
+header .sub{font-size:13px;color:var(--muted);margin-top:5px}
+
+/* CARDS */
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:18px 16px;margin-bottom:14px;box-shadow:var(--shadow)}
+.panel{display:none}
+.panel.active{display:block;animation:fadeUp .22s ease}
+@keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+
+label.lbl{display:block;font-size:12px;font-weight:700;color:var(--navy);letter-spacing:.3px;margin:0 0 7px;text-transform:uppercase}
+textarea,input[type=text],input[type=password],input[type=number],select{
+  width:100%;border:1.5px solid var(--line);border-radius:var(--radius-sm);padding:12px 13px;font-size:14.5px;
+  font-family:inherit;color:var(--ink);background:#fff;transition:border-color .15s}
+textarea:focus,input:focus,select:focus{outline:none;border-color:var(--blue)}
+textarea{min-height:130px;resize:vertical;line-height:1.5}
+.hint{font-size:12px;color:var(--muted);margin-top:6px;line-height:1.45}
+.hint b{color:var(--ink)}
+.row{display:flex;gap:10px;flex-wrap:wrap}
+.row>div{flex:1;min-width:140px}
+.count{font-size:11.5px;color:var(--muted);text-align:right;margin-top:5px}
+
+/* MODE CARDS */
+.modes{display:grid;grid-template-columns:1fr;gap:10px}
+@media(min-width:540px){.modes{grid-template-columns:1fr 1fr}}
+.mode{border:1.5px solid var(--line);border-radius:var(--radius-sm);padding:14px;cursor:pointer;background:#fff;transition:.15s;display:flex;gap:12px;align-items:flex-start}
+.mode:active{transform:scale(.99)}
+.mode.sel{border-color:var(--blue);background:var(--blue-soft)}
+.mode .ic{flex-shrink:0;width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px}
+.mode.sel .ic{background:var(--blue);color:#fff}
+.mode .ic{background:var(--blue-soft);color:var(--blue)}
+.mode.sel .ic{background:var(--blue);color:#fff}
+.mode h3{font-size:15px;font-weight:700;color:var(--ink);margin-bottom:3px}
+.mode p{font-size:12.5px;color:var(--muted);line-height:1.4}
+
+/* BUTTONS */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;width:100%;border:none;border-radius:var(--radius-sm);
+  padding:14px 18px;font-size:15px;font-weight:700;cursor:pointer;transition:.15s;font-family:inherit}
+.btn:active{transform:scale(.985)}
+.btn-primary{background:var(--navy);color:#fff}
+.btn-primary:disabled{opacity:.45;cursor:not-allowed}
+.btn-ghost{background:#fff;color:var(--navy);border:1.5px solid var(--line)}
+.btn-blue{background:var(--blue);color:#fff}
+.btn-row{display:flex;gap:10px}
+.btn-row .btn{width:auto;flex:1}
+.link{background:none;border:none;color:var(--blue);font-weight:600;font-size:13px;cursor:pointer;font-family:inherit;padding:4px}
+
+/* SAVED */
+.saved-item{display:flex;align-items:center;gap:11px;padding:11px 12px;border:1px solid var(--line);border-radius:var(--radius-sm);margin-bottom:8px;background:#fff;cursor:pointer;transition:.15s}
+.saved-item:active{transform:scale(.99)}
+.saved-item:hover{border-color:var(--blue-mid)}
+.saved-item .tag{flex-shrink:0;font-size:16px;width:34px;height:34px;border-radius:9px;display:flex;align-items:center;justify-content:center;background:var(--blue-soft)}
+.saved-item .meta{flex:1;min-width:0}
+.saved-item .meta .t{font-weight:700;font-size:14px;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.saved-item .meta .d{font-size:11.5px;color:var(--muted)}
+.saved-item .del{color:var(--muted);font-size:18px;padding:6px;flex-shrink:0}
+
+/* LOADING */
+.loader{text-align:center;padding:40px 20px}
+.spinner{width:44px;height:44px;border:4px solid var(--blue-soft);border-top-color:var(--blue);border-radius:50%;margin:0 auto 18px;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loader .ls{font-size:14px;color:var(--muted);min-height:20px}
+
+/* GAME HEADER */
+.gh{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:14px}
+.gh .gh-t{min-width:0}
+.gh .gh-t h2{font-size:17px;font-weight:800;color:var(--navy);line-height:1.25}
+.gh .gh-t .gh-s{font-size:12px;color:var(--muted);margin-top:2px}
+.score-pill{flex-shrink:0;background:var(--teal);color:#fff;font-weight:800;font-size:15px;padding:8px 15px;border-radius:20px;white-space:nowrap}
+
+/* JEOPARDY BOARD */
+.board{display:grid;gap:7px}
+.board .catcol{display:flex;flex-direction:column;gap:7px}
+.cat-head{background:var(--navy);color:#fff;font-weight:700;font-size:12px;padding:9px 6px;border-radius:8px;text-align:center;line-height:1.25;min-height:52px;display:flex;align-items:center;justify-content:center}
+.cell{background:var(--blue);color:#fff;font-weight:800;font-size:18px;padding:14px 6px;border-radius:8px;text-align:center;cursor:pointer;transition:.15s;border:none;font-family:inherit}
+.cell:active{transform:scale(.96)}
+.cell:hover{background:#12508e}
+.cell.used{background:#eef1f5;color:#c4cad3;cursor:default;pointer-events:none}
+
+/* EJE TAG */
+.eje{display:inline-block;font-size:10.5px;font-weight:700;padding:3px 9px;border-radius:6px;letter-spacing:.3px;text-transform:uppercase}
+.eje-semiologico{background:var(--blue-soft);color:#0C447C}
+.eje-topografico{background:var(--purple-soft);color:var(--purple)}
+.eje-sindromatico{background:var(--amber-soft);color:var(--amber)}
+.eje-etiologico{background:var(--teal-soft);color:var(--teal)}
+.eje-manejo{background:var(--red-soft);color:var(--red)}
+
+/* CASE / QUIZ */
+.stagebar{display:flex;gap:5px;margin-bottom:14px}
+.stagebar .sg{flex:1;height:5px;border-radius:4px;background:var(--line);transition:.3s}
+.stagebar .sg.done{background:var(--teal)}
+.stagebar .sg.cur{background:var(--blue)}
+.presento{background:var(--blue-soft);border:1px solid var(--blue-mid);border-radius:var(--radius-sm);padding:13px 14px;font-size:14px;line-height:1.55;margin-bottom:14px}
+.presento b{color:var(--navy)}
+.ctx{font-size:14.5px;line-height:1.55;margin:4px 0 14px;padding-left:12px;border-left:3px solid var(--blue-mid)}
+.q{font-size:16.5px;font-weight:700;color:var(--navy);margin:14px 0 12px;line-height:1.35}
+.opts{display:flex;flex-direction:column;gap:9px}
+.opt{border:1.5px solid var(--line);border-radius:var(--radius-sm);padding:13px 14px;cursor:pointer;display:flex;gap:11px;align-items:flex-start;background:#fff;transition:.15s;text-align:left;font-family:inherit;font-size:14.5px;color:var(--ink);line-height:1.45}
+.opt:active{transform:scale(.99)}
+.opt .mk{flex-shrink:0;width:24px;height:24px;border-radius:50%;border:2px solid #c3c8d2;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:12px;color:#8a919c}
+.opt.correct{border-color:var(--teal);background:var(--teal-soft)}
+.opt.correct .mk{background:var(--teal);border-color:var(--teal);color:#fff}
+.opt.wrong{border-color:var(--red);background:var(--red-soft)}
+.opt.wrong .mk{background:var(--red);border-color:var(--red);color:#fff}
+.opt.disabled{pointer-events:none;opacity:.85}
+.fb{border-radius:var(--radius-sm);padding:13px 14px;font-size:13.5px;margin-top:12px;line-height:1.55;display:none}
+.fb.show{display:block;animation:fadeUp .2s ease}
+.fb.ok{background:var(--teal-soft);border:1px solid var(--teal-mid)}
+.fb.no{background:var(--amber-soft);border:1px solid var(--amber-mid)}
+.fb .fh{font-weight:800;margin-bottom:5px;display:flex;align-items:center;gap:7px}
+.fb.ok .fh{color:var(--teal)}
+.fb.no .fh{color:var(--amber)}
+.socratic{margin-top:9px;padding-top:9px;border-top:1px dashed rgba(0,0,0,.12);font-style:italic;color:var(--ink)}
+
+/* MODAL */
+.modal{position:fixed;inset:0;background:rgba(20,26,40,.55);display:none;align-items:flex-end;justify-content:center;z-index:50;padding:0}
+.modal.show{display:flex;animation:fadeUp .2s ease}
+.sheet{background:#fff;width:100%;max-width:600px;border-radius:20px 20px 0 0;padding:22px 18px calc(22px + env(safe-area-inset-bottom,0));max-height:88vh;overflow-y:auto}
+@media(min-width:600px){.modal{align-items:center}.sheet{border-radius:20px;margin:0 14px}}
+.sheet h3{font-size:18px;font-weight:800;color:var(--navy);margin-bottom:4px}
+.sheet .mp{font-size:13px;color:var(--muted);margin-bottom:16px;line-height:1.5}
+.rev-answer{background:var(--teal-soft);border:1px solid var(--teal-mid);border-radius:var(--radius-sm);padding:13px 14px;margin:14px 0;line-height:1.55;font-size:14px}
+.rev-answer .ra-l{font-size:11px;font-weight:800;color:var(--teal);text-transform:uppercase;letter-spacing:.4px;margin-bottom:4px}
+
+.pista-box{font-size:16px;line-height:1.5;margin:6px 0 4px;font-weight:600;color:var(--ink)}
+.value-tag{display:inline-block;background:var(--amber-soft);color:var(--amber);font-weight:800;font-size:13px;padding:3px 12px;border-radius:8px;margin-bottom:10px}
+
+/* RESULTS */
+.result-big{text-align:center;padding:14px 0 6px}
+.result-big .ring{width:120px;height:120px;margin:0 auto 12px;position:relative}
+.result-big .pct{font-size:30px;font-weight:800;color:var(--navy)}
+.result-big .msg{font-size:15px;color:var(--muted);margin-top:2px}
+.stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:16px 0}
+.stat{background:var(--bg);border-radius:var(--radius-sm);padding:12px;text-align:center}
+.stat .n{font-size:22px;font-weight:800;color:var(--navy)}
+.stat .l{font-size:11.5px;color:var(--muted);margin-top:2px}
+.eje-break{margin-top:8px}
+.eje-break .er{display:flex;align-items:center;gap:10px;margin-bottom:9px}
+.eje-break .er .en{flex-shrink:0;width:118px;font-size:12px}
+.eje-break .er .bar{flex:1;height:8px;background:var(--line);border-radius:4px;overflow:hidden}
+.eje-break .er .bar span{display:block;height:100%;background:var(--teal);border-radius:4px}
+.eje-break .er .ev{flex-shrink:0;font-size:12px;font-weight:700;color:var(--muted);width:42px;text-align:right}
+
+.foot{text-align:center;font-size:11px;color:var(--muted);margin-top:20px;line-height:1.5}
+.err{background:var(--red-soft);border:1px solid var(--red-mid);color:var(--red);border-radius:var(--radius-sm);padding:12px 14px;font-size:13.5px;margin-top:12px;line-height:1.5;display:none}
+.err.show{display:block}
+.gear{position:absolute;top:16px;right:14px;background:#fff;border:1px solid var(--line);border-radius:50%;width:38px;height:38px;font-size:17px;cursor:pointer;box-shadow:var(--shadow)}
+.spacer{height:6px}
+.synth{background:var(--purple-soft);border:1px solid var(--purple-mid);border-radius:var(--radius-sm);padding:14px;font-size:14px;line-height:1.6;margin:14px 0}
+.synth .sl{font-size:11px;font-weight:800;color:var(--purple);text-transform:uppercase;letter-spacing:.4px;margin-bottom:6px}
+
+/* FILE UPLOAD */
+.dropz{border:1.5px dashed var(--blue-mid);border-radius:var(--radius-sm);padding:15px 14px;text-align:center;cursor:pointer;background:var(--blue-soft);transition:.15s;margin-top:12px}
+.dropz:active{transform:scale(.99)}
+.dropz.over{background:var(--blue-mid);border-color:var(--blue)}
+.dropz .dz-ic{font-size:21px}
+.dropz .dz-t{font-weight:700;color:var(--navy);font-size:14px;margin-top:2px}
+.dropz .dz-s{font-size:12px;color:var(--muted);margin-top:2px}
+.filechip{display:flex;align-items:center;gap:10px;border:1px solid var(--line);border-radius:var(--radius-sm);padding:10px 12px;margin-top:8px;background:#fff}
+.filechip .fic{flex-shrink:0;font-size:18px}
+.filechip .fmeta{flex:1;min-width:0}
+.filechip .fname{font-weight:600;font-size:13.5px;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.filechip .fsub{font-size:11.5px;color:var(--muted)}
+.filechip .fx{flex-shrink:0;color:var(--muted);font-size:15px;padding:6px;cursor:pointer}
+.filechip.err{border-color:var(--red-mid);background:var(--red-soft)}
+.filechip.err .fsub{color:var(--red)}
+.mini-spin{width:13px;height:13px;border:2px solid var(--blue-soft);border-top-color:var(--blue);border-radius:50%;display:inline-block;animation:spin .8s linear infinite;vertical-align:-2px}
+
+/* JUGADORES / MARCADOR */
+.pcount{display:flex;align-items:center;gap:16px;justify-content:center;margin:12px 0 18px}
+.pcount button{width:46px;height:46px;border-radius:50%;border:1.5px solid var(--line);background:#fff;font-size:23px;font-weight:800;color:var(--navy);cursor:pointer;font-family:inherit}
+.pcount span{font-size:27px;font-weight:800;color:var(--navy);min-width:42px;text-align:center}
+.scoreboard{display:flex;gap:8px;overflow-x:auto;margin-bottom:12px;padding-bottom:4px;scrollbar-width:none}
+.scoreboard::-webkit-scrollbar{display:none}
+.pchip{flex:0 0 auto;background:#fff;border:1.5px solid var(--line);border-radius:12px;padding:8px 12px;text-align:center;min-width:90px}
+.pchip .pn{display:block;font-size:11.5px;font-weight:700;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:120px}
+.pchip .ps{display:block;font-size:19px;font-weight:800;color:var(--navy)}
+.assign{margin-top:14px;border-top:1px dashed var(--line);padding-top:12px}
+.assign-t{font-size:11.5px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.3px;margin-bottom:9px}
+.arow{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.arow .an{flex:1;font-weight:600;font-size:14px;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.arow .av{font-weight:800;color:var(--navy);min-width:46px;text-align:right}
+.abtn{width:42px;height:38px;border-radius:9px;border:none;font-size:20px;font-weight:800;color:#fff;cursor:pointer;font-family:inherit}
+.abtn.plus{background:var(--teal)}
+.abtn.minus{background:var(--red)}
+.ranking{margin-top:8px}
+.rrow{display:flex;align-items:center;gap:12px;padding:12px 14px;border:1px solid var(--line);border-radius:var(--radius-sm);margin-bottom:8px;background:#fff}
+.rrow.first{border-color:var(--amber-mid);background:var(--amber-soft)}
+.rrow .rpos{font-weight:800;color:var(--muted);width:22px}
+.rrow .rname{flex:1;font-weight:700;min-width:0;overflow:hidden;text-overflow:ellipsis}
+.rrow .rscore{font-weight:800;color:var(--navy);font-size:18px}
+.gh-r{display:flex;align-items:center;gap:8px;flex-shrink:0}
+.iconbtn{background:#fff;border:1px solid var(--line);border-radius:10px;width:42px;height:38px;font-size:16px;cursor:pointer;font-family:inherit}
+
+/* REVISIÓN / EDITOR DEL DOCENTE */
+.revitem{background:#fff;border:1px solid var(--line);border-radius:var(--radius);padding:14px;margin-bottom:12px;box-shadow:var(--shadow)}
+.revitem .rh{display:flex;align-items:center;gap:8px;margin-bottom:10px;flex-wrap:wrap}
+.revitem .rh .rt{flex:1;font-size:11.5px;font-weight:800;color:var(--navy);text-transform:uppercase;letter-spacing:.3px;min-width:120px}
+.revitem textarea{min-height:auto;font-size:14px;padding:9px 11px;margin-bottom:9px;line-height:1.45}
+.revitem .fl{font-size:10.5px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.3px;margin-bottom:4px;display:block}
+.revcat{font-weight:800;color:var(--navy);margin:16px 0 8px;font-size:15px}
+.oprow{display:flex;gap:9px;align-items:flex-start;margin-bottom:8px;padding:9px;border:1.5px solid var(--line);border-radius:10px}
+.oprow.ok{border-color:var(--teal);background:var(--teal-soft)}
+.oprow .opradio{flex-shrink:0;width:28px;height:28px;border-radius:50%;border:2px solid #c3c8d2;background:#fff;cursor:pointer;font-weight:800;color:#fff;font-size:13px;font-family:inherit}
+.oprow.ok .opradio{background:var(--teal);border-color:var(--teal)}
+.oprow .opfields{flex:1;min-width:0}
+.oprow textarea{margin-bottom:5px}
+.minibtn{border:1px solid var(--line);background:#fff;border-radius:9px;padding:7px 11px;font-size:12.5px;font-weight:700;cursor:pointer;font-family:inherit;color:var(--navy);white-space:nowrap}
+.minibtn:disabled{opacity:.5}
+.minibtn.danger{color:var(--red);border-color:var(--red-mid)}
+
+/* TEMPORIZADOR */
+.timerbar{height:7px;background:var(--line);border-radius:4px;overflow:hidden;margin:12px 0 4px}
+.timerbar span{display:block;height:100%;background:var(--teal);border-radius:4px;transition:width 1s linear}
+.timerbar.warn span{background:var(--amber)}
+.timerbar.out span{background:var(--red)}
+.timertxt{font-size:12.5px;font-weight:800;color:var(--muted);text-align:right;margin-bottom:6px}
+.timertxt.out{color:var(--red)}
+
+/* VISTA DE EXPORTACIÓN / IMPRESIÓN */
+.printview{display:none;position:fixed;inset:0;background:#fff;z-index:120;overflow-y:auto;padding:16px}
+.printview.show{display:block}
+.pv-actions{display:flex;gap:10px;margin:0 auto 18px;max-width:720px}
+.pv-actions .btn{width:auto;flex:1}
+.pv-doc{max-width:720px;margin:0 auto;color:#111}
+.pv-doc h1{font-size:22px;color:var(--navy);margin-bottom:4px;line-height:1.3}
+.pv-meta{font-size:12px;color:var(--muted);margin-bottom:18px;padding-bottom:10px;border-bottom:2px solid var(--line)}
+.pv-doc h2{font-size:17px;color:var(--navy);margin:22px 0 8px;padding-bottom:4px;border-bottom:1px solid var(--line)}
+.pv-doc h3{font-size:15px;color:var(--navy);margin:0 0 6px;line-height:1.35}
+.pv-item{margin-bottom:16px;padding-bottom:12px;border-bottom:1px dotted #dcdfe5}
+.pv-q{font-weight:600;margin-bottom:6px;line-height:1.5}
+.pv-ctx{font-style:italic;color:#444;margin-bottom:7px;padding-left:10px;border-left:3px solid var(--line);line-height:1.5}
+.pv-a{color:var(--teal);margin-bottom:4px;line-height:1.5}
+.pv-e{font-size:13.5px;color:#333;background:#f5f7fa;padding:9px 11px;border-radius:8px;margin-top:7px;line-height:1.5}
+.pv-opts{list-style:none;margin:7px 0}
+.pv-opts li{padding:8px 11px;border-radius:8px;margin-bottom:5px;background:#f8f9fb;font-size:14px;line-height:1.45}
+.pv-opts li.ok{background:var(--teal-soft)}
+.pv-fb{font-size:12.5px;color:#555;margin-top:4px}
+@media print{
+  body{background:#fff}
+  .wrap,.modal,.gate,.gear{display:none !important}
+  .printview:not(.show){display:none !important}
+  .printview.show{position:static !important;display:block !important;padding:0;overflow:visible}
+  .pv-actions{display:none !important}
+  .pv-item{break-inside:avoid;page-break-inside:avoid}
+  .pv-doc h2,.pv-doc h3{break-after:avoid;page-break-after:avoid}
+}
+
+/* GATE (interruptor remoto) */
+.gate{position:fixed;inset:0;background:var(--bg);display:none;align-items:center;justify-content:center;z-index:100;padding:26px;text-align:center}
+.gate.show{display:flex}
+.gate-box{max-width:420px}
+.gate-box .spinner{margin:0 auto 12px}
+.gate-ic{font-size:46px;margin-bottom:6px}
+.gate-title{font-size:21px;font-weight:800;color:var(--navy);margin-bottom:8px}
+.gate-msg{font-size:15px;color:var(--muted);line-height:1.55}
+.gate-note{font-size:12.5px;color:var(--muted);margin-top:18px}
+</style>
+</head>
+<body>
+<button class="gear" onclick="openKey()" title="Configurar clave API">⚙️</button>
+<div class="wrap">
+  <header>
+    <span class="badge">🎓 RAZONAMIENTO CLÍNICO</span>
+    <h1>Juegos Clínicos</h1>
+    <div class="sub">Convierte cualquier tema, artículo o caso en un juego didáctico interactivo</div>
+  </header>
+
+  <!-- ============ SETUP ============ -->
+  <section id="p-setup" class="panel active">
+    <div id="savedWrap" class="card" style="display:none">
+      <label class="lbl">↩︎ Mis juegos guardados</label>
+      <div id="savedList"></div>
+    </div>
+
+    <div class="card" id="srcCard">
+      <label class="lbl" for="src">1 · Fuente o tema</label>
+      <textarea id="src" placeholder="Pega aquí un artículo, guía clínica, resumen, un caso clínico… o simplemente escribe un tema (p. ej. «Síndrome de Guillain-Barré», «Ictus isquémico agudo», «Cefaleas primarias»)."></textarea>
+      <div class="count"><span id="srcCount">0</span> caracteres</div>
+      <input type="file" id="fileInput" multiple accept=".pdf,.docx,.txt,.md,.markdown,application/pdf,text/plain" style="display:none">
+      <div class="dropz" id="dropz" onclick="document.getElementById('fileInput').click()">
+        <div class="dz-ic">📎</div>
+        <div class="dz-t">Adjuntar PDF o Word</div>
+        <div class="dz-s">Toca para elegir o arrastra aquí · varios archivos</div>
+      </div>
+      <div id="fileList"></div>
+      <div class="hint">Cuanto más rica la fuente, mejores los juegos. Puedes combinar texto escrito con archivos (PDF, Word, .txt). Con solo un tema, se genera desde conocimiento médico estándar.</div>
+    </div>
+
+    <div class="card">
+      <label class="lbl">2 · Tipo de juego</label>
+      <div class="modes" id="modes">
+        <div class="mode sel" data-mode="caso">
+          <div class="ic">🩺</div>
+          <div><h3>Caso progresivo</h3><p>Una guardia que se revela por etapas; el alumno decide y recibe guía socrática.</p></div>
+        </div>
+        <div class="mode" data-mode="jeopardy">
+          <div class="ic">🎯</div>
+          <div><h3>Jeopardy clínico</h3><p>Tablero de categorías y puntajes. Ideal para repaso en grupo y competencia.</p></div>
+        </div>
+        <div class="mode" data-mode="quiz">
+          <div class="ic">🧠</div>
+          <div><h3>Reto diagnóstico</h3><p>Preguntas de opción múltiple que entrenan el razonamiento, no la memoria.</p></div>
+        </div>
+        <div class="mode" data-mode="rapido">
+          <div class="ic">⚡</div>
+          <div><h3>Banderas rojas</h3><p>Ronda rápida centrada en seguridad: qué no omitir y cuándo actuar ya.</p></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="row">
+        <div>
+          <label class="lbl" for="nivel">3 · Nivel</label>
+          <select id="nivel">
+            <option value="grado">Estudiante de grado</option>
+            <option value="interno" selected>Interno / practicante</option>
+            <option value="residente">Residente</option>
+          </select>
+        </div>
+        <div>
+          <label class="lbl" for="cantidad">Extensión</label>
+          <select id="cantidad">
+            <option value="corto">Corto</option>
+            <option value="medio" selected>Medio</option>
+            <option value="largo">Largo</option>
+          </select>
+        </div>
+        <div>
+          <label class="lbl" for="timer">Temporizador</label>
+          <select id="timer">
+            <option value="0" selected>Sin tiempo</option>
+            <option value="15">15 segundos</option>
+            <option value="30">30 segundos</option>
+            <option value="45">45 segundos</option>
+            <option value="60">60 segundos</option>
+          </select>
+        </div>
+      </div>
+      <div class="spacer"></div>
+      <label class="lbl" for="foco" style="margin-top:14px">Enfoque (opcional)</label>
+      <input type="text" id="foco" placeholder="p. ej. diagnóstico topográfico, manejo urgente, diagnóstico diferencial…">
+    </div>
+
+    <div class="err" id="setupErr"></div>
+    <button class="btn btn-primary" id="genBtn" onclick="generate()">✨ Generar juego</button>
+    <input type="file" id="gameFile" accept=".json,application/json" style="display:none">
+    <button class="btn btn-ghost" style="margin-top:10px" onclick="document.getElementById('gameFile').click()">📂 Cargar juego desde archivo</button>
+    <div class="foot">Los juegos se generan con IA (Claude) usando tu clave, guardada solo en este navegador.<br>Verifica siempre el contenido clínico antes de usarlo con alumnos.</div>
+  </section>
+
+  <!-- ============ LOADING ============ -->
+  <section id="p-loading" class="panel">
+    <div class="card loader">
+      <div class="spinner"></div>
+      <div class="ls" id="loadMsg">Diseñando el juego…</div>
+    </div>
+  </section>
+
+  <!-- ============ GAME ============ -->
+  <section id="p-game" class="panel"></section>
+
+  <!-- ============ RESULTS ============ -->
+  <section id="p-results" class="panel"></section>
+</div>
+
+<!-- JEOPARDY CELL MODAL -->
+<div class="modal" id="cellModal">
+  <div class="sheet" id="cellSheet"></div>
+</div>
+
+<!-- API KEY MODAL -->
+<div class="modal" id="keyModal">
+  <div class="sheet">
+    <h3>Clave de API de Claude</h3>
+    <p class="mp">Necesaria para generar juegos. Se obtiene en <b>platform.claude.com → API Keys</b>. Se guarda únicamente en este dispositivo (localStorage) y se envía directo a Anthropic.</p>
+    <label class="lbl" for="apiKey">Clave</label>
+    <input type="password" id="apiKey" placeholder="sk-ant-...">
+    <div class="spacer"></div>
+    <label class="lbl" for="model" style="margin-top:14px">Modelo</label>
+    <select id="model">
+      <option value="claude-haiku-4-5" selected>Claude Haiku 4.5 — rápido y económico</option>
+      <option value="claude-opus-4-8">Claude Opus 4.8 — máxima calidad</option>
+    </select>
+    <div class="hint" style="margin-top:8px">Para preparar material de calidad, Opus. Para generar muchos juegos rápido, Haiku.</div>
+    <div class="spacer"></div><div class="spacer"></div>
+    <div class="btn-row" style="margin-top:8px">
+      <button class="btn btn-ghost" onclick="closeKey()">Cancelar</button>
+      <button class="btn btn-primary" onclick="saveKey()">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<!-- INTERRUPTOR REMOTO: pantalla de verificación / bloqueo -->
+<div id="gate" class="gate"><div class="gate-box" id="gateBox"></div></div>
+
+<!-- VISTA DE EXPORTACIÓN / IMPRESIÓN -->
+<div id="printView" class="printview"></div>
+
+<script>
+/* ================================================================
+   ▼▼▼  INTERRUPTOR REMOTO  ▼▼▼   (control de disponibilidad)
+   Permite APAGAR este material a distancia, incluso las copias
+   que ya hayas compartido.
+
+   CÓMO ACTIVARLO (una sola vez):
+   1) Crea un archivo online con este contenido exacto:
+          {"activo": true}
+      (lo más fácil: un "Gist" en gist.github.com, archivo control.json)
+   2) Copia su enlace RAW y pégalo aquí abajo, entre las comillas.
+
+   CÓMO APAGAR EL MATERIAL (cuando quieras):
+   - Edita ese archivo online y déjalo así:
+          {"activo": false, "mensaje": "Material cerrado por el docente"}
+   - Guarda. En 1-2 minutos, todas las copias dejarán de abrirse.
+   - Para reactivarlo, vuelve a poner  {"activo": true}.
+
+   Si dejas esto VACÍO (''), el interruptor queda desactivado y la
+   app funciona normalmente.
+================================================================ */
+var CONTROL_URL = 'https://gist.githubusercontent.com/Martincflor/192ac3f4bfbba0595375b913ac02c849/raw/control.json';
+/* ▲▲▲  Fin del interruptor remoto  ▲▲▲ */
+
+/* ================= ESTADO ================= */
+var STATE = { mode:'caso', game:null, score:0, idx:0, results:null, files:[], players:[] };
+var LS = { key:'jc_apikey', model:'jc_model', games:'jc_games' };
+
+var EJE_LABEL = { semiologico:'Semiológico', topografico:'Topográfico', sindromatico:'Sindromático', etiologico:'Etiológico', manejo:'Manejo' };
+
+/* ================= INSTRUCCIÓN (SYSTEM) ================= */
+var SYSTEM = [
+'Eres un diseñador experto de juegos didácticos para educación médica, especializado en razonamiento clínico y método socrático. A partir de una fuente que te entrega un docente (un tema, un artículo, una guía o un caso clínico) generas material de juego riguroso, clínicamente correcto y pedagógicamente potente.',
+'',
+'PRINCIPIOS RECTORES:',
+'1. Fidelidad a la fuente. Usa la información de la fuente como base. Si un dato esencial falta, complétalo con conocimiento médico estándar y consolidado; nunca inventes cifras, dosis o resultados de estudios específicos que no puedas sostener.',
+'2. Razonamiento por encima de memoria. Prioriza ítems que exijan integrar, diferenciar, priorizar y decidir. Cada ítem debe entrenar un paso real del razonamiento clínico, no la simple recuperación de un dato.',
+'3. Ejes del razonamiento clínico. Clasifica cada ítem según su eje: "semiologico" (qué signos/síntomas), "topografico" (dónde está la lesión), "sindromatico" (qué síndrome), "etiologico" (qué causa) o "manejo" (qué estudio/tratamiento/conducta).',
+'4. Método socrático. La retroalimentación no entrega la respuesta de golpe: explica por qué la opción correcta lo es y por qué cada distractor falla, y deja una pregunta o pista que impulse a pensar el siguiente paso.',
+'5. Distractores plausibles. Las opciones incorrectas deben representar errores de razonamiento reales y frecuentes de ese nivel, no absurdos.',
+'6. Nivel del alumno. Adapta profundidad, vocabulario y exigencia al nivel indicado (grado, interno, residente).',
+'7. Seguridad clínica. Cuando aplique, incorpora banderas rojas y el paso que no se debe omitir.',
+'8. Redacción impecable. Escribe en español correcto y cuidado: tildes, ñ, puntuación y concordancia de género y número. Usa terminología médica precisa y define cada sigla la primera vez que aparezca. Frases completas y claras; nada de errores ortográficos, anglicismos innecesarios ni construcciones ambiguas.',
+'9. Una sola respuesta correcta. En cada ítem de opción múltiple debe haber EXACTAMENTE una opción correcta e inequívoca. Las demás deben ser claramente incorrectas para un experto, aunque plausibles para el alumno. Nunca dos opciones defendibles.',
+'',
+'VERIFICACIÓN OBLIGATORIA ANTES DE ENTREGAR. Revisa ítem por ítem y corrige lo que no cumpla:',
+'(a) Exactitud clínica: el contenido es correcto y está vigente; no hay datos inventados.',
+'(b) Enunciado: la pregunta está completa, es clara y contiene toda la información necesaria para responderla.',
+'(c) Clave: la opción marcada como correcta es realmente la correcta, y es la única.',
+'(d) Retroalimentación: cada explicación justifica de verdad por qué acierta o falla esa opción.',
+'(e) Lengua: ortografía, tildes y redacción impecables en todos los campos.',
+'No entregues ningún ítem que no supere esta revisión: reescríbelo o sustitúyelo.',
+'',
+'Escribes en español clínico claro. Devuelves EXCLUSIVAMENTE el JSON solicitado, sin texto adicional.'
+].join('\n');
+
+/* ================= ESQUEMAS JSON ================= */
+var EJE_ENUM = ['semiologico','topografico','sindromatico','etiologico','manejo'];
+function opcionSchema(){
+  return { type:'array', items:{ type:'object', additionalProperties:false,
+    required:['texto','correcta','feedback'],
+    properties:{ texto:{type:'string'}, correcta:{type:'boolean'}, feedback:{type:'string', description:'Por qué esta opción es correcta o incorrecta, en tono socrático'} } } };
+}
+function schemaFor(mode){
+  var meta = { type:'object', additionalProperties:false, required:['tema','nivel'],
+    properties:{ tema:{type:'string'}, nivel:{type:'string'} } };
+  if(mode==='jeopardy'){
+    return { type:'object', additionalProperties:false, required:['titulo','meta','categorias'],
+      properties:{ titulo:{type:'string'}, meta:meta,
+        categorias:{ type:'array', items:{ type:'object', additionalProperties:false,
+          required:['nombre','pistas'],
+          properties:{ nombre:{type:'string'},
+            pistas:{ type:'array', items:{ type:'object', additionalProperties:false,
+              required:['valor','pista','respuesta','explicacion','eje'],
+              properties:{ valor:{type:'integer'}, pista:{type:'string', description:'El desafío/planteo que ve el alumno'},
+                respuesta:{type:'string', description:'La respuesta correcta'},
+                explicacion:{type:'string', description:'Explicación socrática breve'},
+                eje:{type:'string', enum:EJE_ENUM} } } } } } } } };
+  }
+  if(mode==='caso'){
+    return { type:'object', additionalProperties:false, required:['titulo','meta','presentacion','etapas','sintesis'],
+      properties:{ titulo:{type:'string'}, meta:meta,
+        presentacion:{type:'string', description:'Motivo de consulta y datos iniciales del paciente'},
+        etapas:{ type:'array', items:{ type:'object', additionalProperties:false,
+          required:['titulo','contexto','pregunta','eje','opciones','aprendizaje'],
+          properties:{ titulo:{type:'string'}, contexto:{type:'string', description:'Nuevos datos que aparecen en esta etapa'},
+            pregunta:{type:'string'}, eje:{type:'string', enum:EJE_ENUM},
+            opciones:opcionSchema(),
+            aprendizaje:{type:'string', description:'Perla o mensaje clave de la etapa'} } } },
+        sintesis:{type:'string', description:'Cierre: diagnóstico final, perlas y banderas rojas'} } };
+  }
+  // quiz y rapido comparten estructura
+  return { type:'object', additionalProperties:false, required:['titulo','meta','preguntas'],
+    properties:{ titulo:{type:'string'}, meta:meta,
+      preguntas:{ type:'array', items:{ type:'object', additionalProperties:false,
+        required:['enunciado','eje','opciones','explicacion'],
+        properties:{ enunciado:{type:'string'}, eje:{type:'string', enum:EJE_ENUM},
+          opciones:opcionSchema(),
+          explicacion:{type:'string', description:'Explicación integradora tras responder'} } } } } };
+}
+
+/* ================= PROMPT DE USUARIO ================= */
+function nivelTxt(v){ return {grado:'estudiante de grado (pregrado)', interno:'interno / practicante', residente:'residente'}[v]; }
+function buildPrompt(mode, src, nivel, ext, foco, nPdf){
+  var sizes = {
+    caso:      {corto:'4 etapas', medio:'6 etapas', largo:'8 etapas'},
+    jeopardy:  {corto:'4 categorías × 4 pistas (valores 100,200,300,400)', medio:'4 categorías × 5 pistas (valores 100,200,300,400,500)', largo:'5 categorías × 5 pistas (valores 100,200,300,400,500)'},
+    quiz:      {corto:'6 preguntas', medio:'10 preguntas', largo:'15 preguntas'},
+    rapido:    {corto:'8 preguntas', medio:'12 preguntas', largo:'16 preguntas'}
+  };
+  var size = sizes[mode][ext];
+  var fuente;
+  if(src && src.trim()){
+    fuente = 'FUENTE / TEMA:\n"""\n'+src.trim()+'\n"""\n';
+    if(nPdf) fuente += '(Además se adjuntan '+nPdf+' documento(s) PDF como fuente; intégralos con el texto anterior.)\n';
+  } else {
+    fuente = 'FUENTE: usa como base el/los '+(nPdf||'')+' documento(s) PDF adjunto(s) a este mensaje.\n';
+  }
+  var head = fuente + '\nNIVEL DEL ALUMNO: '+nivelTxt(nivel)+'.\n' + (foco?('ENFOQUE PRIORITARIO: '+foco.trim()+'.\n'):'') + '\n';
+  var body;
+  if(mode==='caso'){
+    body = 'Diseña un CASO CLÍNICO PROGRESIVO jugable de '+size+'. Comienza con una presentación breve (motivo de consulta + datos iniciales). Cada etapa aporta NUEVOS datos (anamnesis, examen, estudios, evolución) y plantea UNA decisión con 3 a 5 opciones, marcando exactamente una como correcta. Ordena las etapas siguiendo el razonamiento clínico real: primero semiológico/topográfico, luego sindromático y etiológico, y al final manejo. Cada distractor debe reflejar un error frecuente. Cierra con una síntesis (diagnóstico final, 2-3 perlas y banderas rojas).';
+  } else if(mode==='jeopardy'){
+    body = 'Diseña un TABLERO tipo Jeopardy de '+size+'. Cada categoría agrupa un aspecto del tema. Dentro de cada categoría, la dificultad AUMENTA con el valor. Cada casilla tiene una "pista" (planteo que reta al alumno), la "respuesta" correcta y una explicación socrática. Distribuye los ejes de razonamiento entre las casillas. Evita preguntas de puro dato: privilegia la aplicación clínica.';
+  } else if(mode==='rapido'){
+    body = 'Diseña una RONDA RÁPIDA DE SEGURIDAD de '+size+', centrada en BANDERAS ROJAS: signos de alarma, diagnósticos que no se deben pasar por alto, y decisiones urgentes de "actuar ya vs. observar". Cada pregunta con 3 a 4 opciones (una correcta) y feedback que enfatice la consecuencia de errar. Explicación breve e incisiva.';
+  } else {
+    body = 'Diseña un RETO DIAGNÓSTICO de '+size+' de opción múltiple. Cada pregunta debe exigir razonamiento (integrar hallazgos, diferenciar, elegir el siguiente paso), no memorizar. 3 a 5 opciones, una correcta, distractores plausibles. Añade una explicación integradora por pregunta.';
+  }
+  return head + body + '\n\nDevuelve solo el JSON con el esquema indicado.';
+}
+
+/* ================= LLAMADA A LA API ================= */
+var LOAD_MSGS = ['Leyendo la fuente…','Detectando conceptos clave…','Diseñando los desafíos…','Puliendo la retroalimentación socrática…','Casi listo…'];
+var loadTimer=null;
+function cycleLoad(){ var i=0; setLoad(LOAD_MSGS[0]); loadTimer=setInterval(function(){ i=(i+1)%LOAD_MSGS.length; setLoad(LOAD_MSGS[i]); }, 2600); }
+function setLoad(t){ document.getElementById('loadMsg').textContent=t; }
+
+async function generate(){
+  var typed = document.getElementById('src').value.trim();
+  var err = document.getElementById('setupErr');
+  err.className='err';
+  if(anyProcessing()){ err.className='err show'; err.textContent='Espera a que terminen de procesarse los archivos.'; return; }
+  var files = readyFiles();
+  if(typed.length < 3 && !files.length){ err.className='err show'; err.textContent='Escribe un tema, pega una fuente o adjunta un archivo (PDF/Word).'; return; }
+  var key = localStorage.getItem(LS.key);
+  if(!key){ openKey(); return; }
+
+  var nivel = document.getElementById('nivel').value;
+  var ext = document.getElementById('cantidad').value;
+  var foco = document.getElementById('foco').value;
+  var mode = STATE.mode;
+  var model = localStorage.getItem(LS.model) || 'claude-haiku-4-5';
+
+  // PDFs se envían como documentos; el resto (Word/.txt/tema) va como texto
+  var pdfs = files.filter(function(r){ return r.kind==='pdf'; });
+  var b64total=0; pdfs.forEach(function(r){ b64total+=r.data.length; });
+  if(b64total > MAX_MB*1048576){ err.className='err show'; err.textContent='Los PDF adjuntos superan el límite ('+MAX_MB+' MB). Quita alguno o usa menos páginas.'; return; }
+  var textParts=[]; if(typed) textParts.push(typed);
+  files.forEach(function(r){ if(r.kind!=='pdf') textParts.push('=== '+r.name+' ===\n'+r.data); });
+  var textSource = textParts.join('\n\n');
+
+  show('loading'); cycleLoad();
+
+  var oc = { format:{ type:'json_schema', schema: schemaFor(mode) } };
+  if(model.indexOf('opus')>=0) oc.effort = 'medium';
+
+  var content=[];
+  pdfs.forEach(function(r){ content.push({ type:'document', source:{ type:'base64', media_type:'application/pdf', data:r.data }, title:r.name }); });
+  content.push({ type:'text', text: buildPrompt(mode, textSource, nivel, ext, foco, pdfs.length) });
+
+  var body = {
+    model: model,
+    max_tokens: 12000,
+    system: SYSTEM,
+    messages: [{ role:'user', content: content }],
+    output_config: oc
+  };
+
+  try{
+    var res = await fetch('https://api.anthropic.com/v1/messages', {
+      method:'POST',
+      headers:{
+        'x-api-key': key,
+        'anthropic-version':'2023-06-01',
+        'content-type':'application/json',
+        'anthropic-dangerous-direct-browser-access':'true'
+      },
+      body: JSON.stringify(body)
+    });
+    clearInterval(loadTimer);
+    var data = await res.json();
+    if(!res.ok){
+      var m = (data && data.error && data.error.message) || ('Error '+res.status);
+      if(res.status===401) m='Clave de API inválida. Revísala en el ⚙️.';
+      if(res.status===429) m='Límite de uso alcanzado. Espera un momento y reintenta.';
+      throw new Error(m);
+    }
+    if(data.stop_reason==='refusal') throw new Error('La solicitud fue rechazada por seguridad. Reformula la fuente o el enfoque.');
+    var txt='';
+    (data.content||[]).forEach(function(b){ if(b.type==='text') txt+=b.text; });
+    var game = parseJSON(txt);
+    if(!game) throw new Error('No se pudo interpretar la respuesta. Reintenta.');
+    game._mode = mode;
+    game._src = textSource.slice(0,12000);
+    STATE.game = game;
+    saveGame(game);
+    renderReview(game);
+  }catch(e){
+    clearInterval(loadTimer);
+    show('setup');
+    err.className='err show';
+    err.textContent = (''+e.message) || 'Ocurrió un error. Reintenta.';
+  }
+}
+
+function parseJSON(t){
+  if(!t) return null;
+  try{ return JSON.parse(t); }catch(e){}
+  var a=t.indexOf('{'), b=t.lastIndexOf('}');
+  if(a>=0 && b>a){ try{ return JSON.parse(t.slice(a,b+1)); }catch(e){} }
+  return null;
+}
+
+/* ================= ARRANQUE DE JUEGO ================= */
+function startGame(game){
+  STATE.score=0; STATE.idx=0; STATE.players=[];
+  stopTimer();
+  var tsel=document.getElementById('timer');
+  STATE.timerSecs = tsel ? (parseInt(tsel.value,10)||0) : 0;
+  var mode = game._mode;
+  if(mode==='jeopardy') renderJeopardy(game);
+  else if(mode==='caso') renderCaso(game);
+  else renderQuiz(game);
+  show('game');
+  window.scrollTo(0,0);
+}
+
+/* ================= REVISIÓN Y EDICIÓN DEL DOCENTE ================= */
+function escText(s){ return (''+(s==null?'':s)).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function getByPath(path){ var o=STATE.game; path.split('.').forEach(function(p){ o=o[p]; }); return o; }
+function setField(path,val){
+  var parts=path.split('.'), o=STATE.game;
+  for(var i=0;i<parts.length-1;i++) o=o[parts[i]];
+  o[parts[parts.length-1]]=val;
+}
+function setCorrect(base,idx){
+  getByPath(base).opciones.forEach(function(o,i){ o.correcta=(i===idx); });
+  renderRevList();
+}
+function fld(label,path,val){
+  return (label?'<span class="fl">'+label+'</span>':'')
+    + '<textarea rows="2" oninput="setField(\''+path+'\',this.value)">'+escText(val)+'</textarea>';
+}
+function optsEditor(base,opciones){
+  var h='<span class="fl">Opciones · toca el círculo para marcar la correcta</span>';
+  (opciones||[]).forEach(function(o,oi){
+    h += '<div class="oprow'+(o.correcta?' ok':'')+'">'
+       + '<button class="opradio" onclick="setCorrect(\''+base+'\','+oi+')">'+(o.correcta?'✓':'')+'</button>'
+       + '<div class="opfields">'
+       + '<textarea rows="1" oninput="setField(\''+base+'.opciones.'+oi+'.texto\',this.value)">'+escText(o.texto)+'</textarea>'
+       + '<textarea rows="1" placeholder="Retroalimentación" oninput="setField(\''+base+'.opciones.'+oi+'.feedback\',this.value)">'+escText(o.feedback)+'</textarea>'
+       + '</div></div>';
+  });
+  return h;
+}
+function itemBtns(kind,i,j){
+  var id = kind+'-'+i+'-'+(j===undefined?0:j);
+  return '<button class="minibtn" id="rg-'+id+'" onclick="regenItem(\''+kind+'\','+i+','+(j===undefined?-1:j)+')">🔄 Regenerar</button>'
+       + '<button class="minibtn danger" onclick="delItem(\''+kind+'\','+i+','+(j===undefined?-1:j)+')">🗑️</button>';
+}
+function delItem(kind,i,j){
+  var g=STATE.game;
+  if(kind==='jeopardy') g.categorias[i].pistas.splice(j,1);
+  else if(kind==='caso') g.etapas.splice(i,1);
+  else g.preguntas.splice(i,1);
+  renderRevList();
+}
+function renderReview(game){
+  STATE.game=game;
+  var el=document.getElementById('p-game');
+  el.innerHTML = '<div class="gh"><div class="gh-t"><h2>'+esc(game.titulo||'Juego')+'</h2>'
+    + '<div class="gh-s">Revisa y corrige antes de jugar</div></div></div>'
+    + '<div class="hint" style="margin-bottom:12px">Edita cualquier texto directamente. Puedes cambiar la opción correcta, regenerar un ítem que no te convenza o eliminarlo.</div>'
+    + '<div class="btn-row" style="margin-bottom:14px"><button class="btn btn-ghost" onclick="show(\'setup\')">← Salir</button>'
+    + '<button class="btn btn-primary" onclick="startGame(STATE.game)">Comenzar juego →</button></div>'
+    + '<div id="revList"></div>'
+    + '<div class="btn-row" style="margin-top:10px"><button class="btn btn-blue" onclick="downloadGame()">💾 Descargar</button>'
+    + '<button class="btn btn-primary" onclick="startGame(STATE.game)">Comenzar juego →</button></div>';
+  renderRevList();
+  show('game'); window.scrollTo(0,0);
+}
+function renderRevList(){
+  var g=STATE.game, m=g._mode, h='';
+  if(m==='jeopardy'){
+    (g.categorias||[]).forEach(function(c,ci){
+      h+='<div class="revcat">'+esc(c.nombre)+'</div>';
+      (c.pistas||[]).forEach(function(p,pi){
+        h+='<div class="revitem"><div class="rh"><span class="rt">'+(p.valor||'')+' pts · '+(EJE_LABEL[p.eje]||'')+'</span>'+itemBtns('jeopardy',ci,pi)+'</div>'
+          + fld('Pista','categorias.'+ci+'.pistas.'+pi+'.pista',p.pista)
+          + fld('Respuesta','categorias.'+ci+'.pistas.'+pi+'.respuesta',p.respuesta)
+          + fld('Explicación','categorias.'+ci+'.pistas.'+pi+'.explicacion',p.explicacion)
+          + '</div>';
+      });
+    });
+  } else if(m==='caso'){
+    h+='<div class="revitem"><div class="rh"><span class="rt">Presentación</span></div>'+fld('','presentacion',g.presentacion)+'</div>';
+    (g.etapas||[]).forEach(function(et,i){
+      h+='<div class="revitem"><div class="rh"><span class="rt">Etapa '+(i+1)+' · '+(EJE_LABEL[et.eje]||'')+'</span>'+itemBtns('caso',i)+'</div>'
+        + fld('Título','etapas.'+i+'.titulo',et.titulo)
+        + fld('Contexto','etapas.'+i+'.contexto',et.contexto)
+        + fld('Pregunta','etapas.'+i+'.pregunta',et.pregunta)
+        + optsEditor('etapas.'+i,et.opciones)
+        + fld('Aprendizaje','etapas.'+i+'.aprendizaje',et.aprendizaje)
+        + '</div>';
+    });
+    h+='<div class="revitem"><div class="rh"><span class="rt">Síntesis final</span></div>'+fld('','sintesis',g.sintesis)+'</div>';
+  } else {
+    (g.preguntas||[]).forEach(function(q,i){
+      h+='<div class="revitem"><div class="rh"><span class="rt">Pregunta '+(i+1)+' · '+(EJE_LABEL[q.eje]||'')+'</span>'+itemBtns('quiz',i)+'</div>'
+        + fld('Enunciado','preguntas.'+i+'.enunciado',q.enunciado)
+        + optsEditor('preguntas.'+i,q.opciones)
+        + fld('Explicación','preguntas.'+i+'.explicacion',q.explicacion)
+        + '</div>';
+    });
+  }
+  document.getElementById('revList').innerHTML=h;
+}
+
+/* ---------- REGENERAR UN ÍTEM SUELTO ---------- */
+async function regenItem(kind,i,j){
+  var key=localStorage.getItem(LS.key); if(!key){ openKey(); return; }
+  var g=STATE.game, model=localStorage.getItem(LS.model)||'claude-haiku-4-5';
+  var btn=document.getElementById('rg-'+kind+'-'+i+'-'+(j<0?0:j));
+  if(btn){ btn.textContent='⏳ Generando…'; btn.disabled=true; }
+  var ctx='TEMA: '+((g.meta&&g.meta.tema)||g.titulo||'')+'\nNIVEL DEL ALUMNO: '+((g.meta&&g.meta.nivel)||'')+'\n'
+        + (g._src ? ('FUENTE:\n"""\n'+String(g._src).slice(0,6000)+'\n"""\n') : '');
+  var schema, actual, instr;
+  if(kind==='jeopardy'){
+    actual=g.categorias[i].pistas[j];
+    schema={type:'object',additionalProperties:false,required:['valor','pista','respuesta','explicacion','eje'],
+      properties:{valor:{type:'integer'},pista:{type:'string'},respuesta:{type:'string'},explicacion:{type:'string'},eje:{type:'string',enum:EJE_ENUM}}};
+    instr='Genera UNA pista nueva de '+(actual.valor||100)+' puntos para la categoría "'+(g.categorias[i].nombre||'')+'" que SUSTITUYA a esta (se descarta):\n'+JSON.stringify(actual)+'\nNo repitas el contenido de las demás pistas del tablero.';
+  } else if(kind==='caso'){
+    actual=g.etapas[i];
+    schema={type:'object',additionalProperties:false,required:['titulo','contexto','pregunta','eje','opciones','aprendizaje'],
+      properties:{titulo:{type:'string'},contexto:{type:'string'},pregunta:{type:'string'},eje:{type:'string',enum:EJE_ENUM},opciones:opcionSchema(),aprendizaje:{type:'string'}}};
+    instr='En el caso clínico "'+(g.titulo||'')+'" (presentación: '+(g.presentacion||'')+'), genera UNA etapa nueva que SUSTITUYA a esta (se descarta):\n'+JSON.stringify(actual)+'\nMantén la coherencia con el resto del caso.';
+  } else {
+    actual=g.preguntas[i];
+    schema={type:'object',additionalProperties:false,required:['enunciado','eje','opciones','explicacion'],
+      properties:{enunciado:{type:'string'},eje:{type:'string',enum:EJE_ENUM},opciones:opcionSchema(),explicacion:{type:'string'}}};
+    instr='Genera UNA pregunta nueva que SUSTITUYA a esta (se descarta):\n'+JSON.stringify(actual)+'\nNo repitas las demás preguntas del cuestionario.';
+  }
+  var oc={format:{type:'json_schema',schema:schema}};
+  if(model.indexOf('opus')>=0) oc.effort='medium';
+  try{
+    var res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',
+      headers:{'x-api-key':key,'anthropic-version':'2023-06-01','content-type':'application/json','anthropic-dangerous-direct-browser-access':'true'},
+      body:JSON.stringify({model:model,max_tokens:3000,system:SYSTEM,messages:[{role:'user',content:ctx+'\n'+instr}],output_config:oc})});
+    var data=await res.json();
+    if(!res.ok) throw new Error((data.error&&data.error.message)||('Error '+res.status));
+    var txt=''; (data.content||[]).forEach(function(b){ if(b.type==='text') txt+=b.text; });
+    var item=parseJSON(txt); if(!item) throw new Error('Respuesta no interpretable');
+    if(kind==='jeopardy'){ item.valor=actual.valor; g.categorias[i].pistas[j]=item; }
+    else if(kind==='caso') g.etapas[i]=item;
+    else g.preguntas[i]=item;
+    renderRevList();
+  }catch(e){
+    if(btn){ btn.textContent='🔄 Regenerar'; btn.disabled=false; }
+    alert('No se pudo regenerar: '+(e.message||e));
+  }
+}
+
+/* ================= TEMPORIZADOR ================= */
+var TIMER={id:null};
+function stopTimer(){ if(TIMER.id){ clearInterval(TIMER.id); TIMER.id=null; } }
+function timerHTML(){
+  if(!STATE.timerSecs) return '';
+  return '<div class="timerbar" id="tbar"><span style="width:100%"></span></div><div class="timertxt" id="ttxt">'+STATE.timerSecs+' s</div>';
+}
+function startTimer(onEnd){
+  var total=STATE.timerSecs; if(!total) return;
+  stopTimer();
+  var left=total;
+  TIMER.id=setInterval(function(){
+    left--;
+    var bar=document.getElementById('tbar'), txt=document.getElementById('ttxt');
+    if(!bar){ stopTimer(); return; }
+    bar.querySelector('span').style.width=Math.max(0,left/total*100)+'%';
+    bar.className='timerbar'+(left<=total*0.25?' out':(left<=total*0.6?' warn':''));
+    if(txt){ txt.textContent = left>0 ? (left+' s') : '¡Tiempo!'; if(left<=total*0.25) txt.className='timertxt out'; }
+    if(left<=0){ stopTimer(); if(onEnd) onEnd(); }
+  },1000);
+}
+
+/* ================= DESCARGAR / CARGAR JUEGO ================= */
+function downloadGame(){
+  var g=STATE.game; if(!g) return;
+  var name=(g.titulo||'juego').replace(/[^\wáéíóúñÁÉÍÓÚÑ \-]+/g,'').trim().replace(/\s+/g,'-').slice(0,40) || 'juego';
+  var blob=new Blob([JSON.stringify(g,null,2)],{type:'application/json'});
+  var url=URL.createObjectURL(blob);
+  var a=document.createElement('a'); a.href=url; a.download=name+'.juego.json';
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  setTimeout(function(){ URL.revokeObjectURL(url); },1500);
+}
+async function importGame(file){
+  var err=document.getElementById('setupErr'); err.className='err';
+  try{
+    var g=parseJSON(await file.text());
+    if(!g || !g._mode) throw new Error('el archivo no es un juego válido.');
+    STATE.mode=g._mode; STATE.game=g; saveGame(g); renderReview(g);
+  }catch(e){
+    err.className='err show'; err.textContent='No se pudo cargar: '+(e.message||e);
+  }
+}
+
+/* ---------- JEOPARDY: CONFIGURAR JUGADORES ---------- */
+function renderPlayersSetup(game){
+  var el = document.getElementById('p-game');
+  el.innerHTML = gameHeader(game.titulo, (game.meta&&game.meta.tema)||'', false)
+    + '<div class="card"><label class="lbl">¿Cuántos jugadores o equipos?</label>'
+    + '<div class="pcount"><button onclick="setPCount(-1)">−</button><span id="pcount">2</span><button onclick="setPCount(1)">+</button></div>'
+    + '<label class="lbl">Nombres</label><div id="pnames"></div>'
+    + '<button class="btn btn-primary" style="margin-top:6px" onclick="startJeopardy()">Comenzar juego →</button>'
+    + '<button class="btn btn-ghost" style="margin-top:9px" onclick="show(\'setup\')">← Salir</button></div>';
+  STATE._pcount = 2; renderPNames();
+}
+function setPCount(d){
+  STATE._pcount = Math.max(1, Math.min(6, STATE._pcount + d));
+  document.getElementById('pcount').textContent = STATE._pcount;
+  renderPNames();
+}
+function renderPNames(){
+  var w = document.getElementById('pnames');
+  var old = [].map.call(w.querySelectorAll('input'), function(i){ return i.value; });
+  w.innerHTML = '';
+  for(var i=0;i<STATE._pcount;i++){
+    var inp = document.createElement('input');
+    inp.type='text'; inp.style.marginBottom='8px'; inp.placeholder='Nombre '+(i+1);
+    inp.value = (old[i]!==undefined && old[i]!=='') ? old[i] : ('Equipo '+(i+1));
+    w.appendChild(inp);
+  }
+}
+function startJeopardy(){
+  var ins = document.querySelectorAll('#pnames input');
+  STATE.players = [].map.call(ins, function(inp,i){
+    return { name: (inp.value||'').trim() || ('Equipo '+(i+1)), score:0 };
+  });
+  renderJeopardy(STATE.game);
+}
+function scoreboardHTML(){
+  var h = '<div class="scoreboard" id="scoreboard">';
+  STATE.players.forEach(function(p,i){
+    h += '<div class="pchip"><span class="pn">'+esc(p.name)+'</span><span class="ps" id="ps-'+i+'">'+p.score+'</span></div>';
+  });
+  return h + '</div>';
+}
+function updateScoreboard(){
+  STATE.players.forEach(function(p,i){
+    var e = document.getElementById('ps-'+i); if(e) e.textContent = p.score;
+  });
+}
+
+/* ---------- JEOPARDY: TABLERO ---------- */
+function renderJeopardy(game){
+  if(!STATE.players.length){ renderPlayersSetup(game); return; }
+  STATE.jUsed = {};
+  var cats = game.categorias||[];
+  STATE.jTotal = 0; cats.forEach(function(c){ STATE.jTotal += (c.pistas||[]).length; });
+  STATE.jDone = 0;
+  var el = document.getElementById('p-game');
+  var cols = cats.length;
+  var h = gameHeader(game.titulo, (game.meta&&game.meta.tema)||'', false);
+  h += scoreboardHTML();
+  h += '<div class="board" style="grid-template-columns:repeat('+cols+',1fr)">';
+  cats.forEach(function(c,ci){
+    h += '<div class="catcol"><div class="cat-head">'+esc(c.nombre)+'</div>';
+    (c.pistas||[]).forEach(function(p,pi){
+      h += '<button class="cell" id="cell-'+ci+'-'+pi+'" onclick="openCell('+ci+','+pi+')">'+ (p.valor||((pi+1)*100)) +'</button>';
+    });
+    h += '</div>';
+  });
+  h += '</div>';
+  h += '<div class="hint" style="margin-top:14px">Toca una casilla, revela la respuesta y asigna los puntos a quien contestó (+ suma, − resta). Al terminar el tablero se muestra el ganador.</div>';
+  h += '<div class="btn-row" style="margin-top:16px"><button class="btn btn-ghost" onclick="show(\'setup\')">← Salir</button>'
+     + '<button class="btn btn-blue" onclick="openExport()">🖨️ Exportar</button></div>';
+  el.innerHTML = h;
+}
+function openCell(ci,pi){
+  var p = STATE.game.categorias[ci].pistas[pi];
+  STATE._cell = {ci:ci,pi:pi,p:p};
+  var s = document.getElementById('cellSheet');
+  s.innerHTML =
+    '<span class="value-tag">'+(p.valor||'')+' pts</span> '+ejeTag(p.eje)+
+    '<div class="pista-box">'+esc(p.pista)+'</div>'+
+    timerHTML()+
+    '<div id="revBox"></div>'+
+    '<div class="btn-row" style="margin-top:14px"><button class="btn btn-blue" id="revBtn" onclick="revealCell()">Mostrar respuesta</button></div>';
+  document.getElementById('cellModal').classList.add('show');
+  startTimer();
+}
+function revealCell(){
+  stopTimer();
+  var p = STATE._cell.p, val = p.valor||0;
+  var h = '<div class="rev-answer"><div class="ra-l">Respuesta</div>'+esc(p.respuesta)+
+          '<div class="socratic">'+esc(p.explicacion)+'</div></div>';
+  h += '<div class="assign"><div class="assign-t">Asignar puntos ('+val+' por acierto)</div>';
+  STATE.players.forEach(function(pl,i){
+    h += '<div class="arow"><span class="an">'+esc(pl.name)+'</span><span class="av" id="av-'+i+'">'+pl.score+'</span>'
+       + '<button class="abtn minus" onclick="adjustPoints('+i+',-1)">−</button>'
+       + '<button class="abtn plus" onclick="adjustPoints('+i+',1)">+</button></div>';
+  });
+  h += '</div>';
+  document.getElementById('revBox').innerHTML = h;
+  document.getElementById('revBtn').parentNode.innerHTML =
+    '<button class="btn btn-primary" onclick="closeCell()">Listo →</button>';
+}
+function adjustPoints(i, sign){
+  var val = (STATE._cell.p.valor)||0;
+  STATE.players[i].score += sign * val;
+  var e = document.getElementById('av-'+i); if(e) e.textContent = STATE.players[i].score;
+  updateScoreboard();
+}
+function closeCell(){
+  stopTimer();
+  var c = STATE._cell;
+  var cell = document.getElementById('cell-'+c.ci+'-'+c.pi);
+  if(cell && !cell.classList.contains('used')){
+    cell.classList.add('used'); cell.textContent = '✓';
+    STATE.jDone++;
+  }
+  document.getElementById('cellModal').classList.remove('show');
+  if(STATE.jDone >= STATE.jTotal){
+    setTimeout(showJeopardyResults, 350);
+  }
+}
+function showJeopardyResults(){
+  var el = document.getElementById('p-results');
+  var sorted = STATE.players.slice().sort(function(a,b){ return b.score-a.score; });
+  var top = sorted.length ? sorted[0].score : 0;
+  var winners = sorted.filter(function(p){ return p.score===top; });
+  var h = '<div class="result-big"><div class="gate-ic">🏆</div>'
+        + '<div class="gate-title">'+ (winners.length>1 ? 'Empate' : esc(winners[0]?winners[0].name:'')) +'</div>'
+        + '<div class="msg">'+ (winners.length>1
+              ? esc(winners.map(function(p){return p.name;}).join(' y ')) + ' · ' + top + ' puntos'
+              : 'Ganador con ' + top + ' puntos') + '</div></div>';
+  h += '<div class="ranking">';
+  sorted.forEach(function(p,i){
+    h += '<div class="rrow'+(p.score===top?' first':'')+'"><span class="rpos">'+(i+1)+'</span>'
+       + '<span class="rname">'+esc(p.name)+'</span><span class="rscore">'+p.score+'</span></div>';
+  });
+  h += '</div>' + endButtonsHTML();
+  el.innerHTML = h;
+  show('results'); window.scrollTo(0,0);
+}
+
+/* ---------- CASO PROGRESIVO ---------- */
+function renderCaso(game){
+  STATE.caseTries=[];
+  var el = document.getElementById('p-game');
+  el.innerHTML = gameHeader(game.titulo, (game.meta&&game.meta.tema)||'', false)
+    + '<div class="stagebar" id="stagebar"></div>'
+    + '<div class="presento"><b>Presentación.</b> '+esc(game.presentacion)+'</div>'
+    + '<div id="stageBox"></div>';
+  renderStage(0);
+}
+function renderStage(i){
+  var game = STATE.game, et = game.etapas[i];
+  STATE.idx = i;
+  // barra
+  var sb = document.getElementById('stagebar'); sb.innerHTML='';
+  game.etapas.forEach(function(_,k){
+    var cls = k<i?'done':(k===i?'cur':'');
+    sb.innerHTML += '<div class="sg '+cls+'"></div>';
+  });
+  var box = document.getElementById('stageBox');
+  var h = '<div style="margin-bottom:6px">'+ejeTag(et.eje)+' <span style="font-size:12px;color:var(--muted);font-weight:700;margin-left:6px">Etapa '+(i+1)+'/'+game.etapas.length+'</span></div>';
+  h += '<div style="font-size:15px;font-weight:800;color:var(--navy);margin-bottom:4px">'+esc(et.titulo)+'</div>';
+  if(et.contexto) h += '<div class="ctx">'+esc(et.contexto)+'</div>';
+  h += '<div class="q">'+esc(et.pregunta)+'</div><div class="opts" id="opts"></div>';
+  h += '<div class="fb" id="fb"></div><div id="nextWrap"></div>';
+  box.innerHTML = h;
+  var opts = document.getElementById('opts');
+  et.opciones.forEach(function(o,oi){
+    var b=document.createElement('button'); b.className='opt';
+    b.innerHTML='<span class="mk">'+String.fromCharCode(65+oi)+'</span><span>'+esc(o.texto)+'</span>';
+    b.onclick=function(){ answerStage(oi); };
+    opts.appendChild(b);
+  });
+  STATE._stageTried=false;
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+function answerStage(oi){
+  var et = STATE.game.etapas[STATE.idx];
+  var o = et.opciones[oi];
+  var opts = document.getElementById('opts').children;
+  if(!STATE._stageTried){ STATE.caseTries[STATE.idx] = o.correcta; STATE._stageTried=true; if(o.correcta) STATE.score++; updateScore(); }
+  opts[oi].classList.add(o.correcta?'correct':'wrong');
+  opts[oi].querySelector('.mk').textContent = o.correcta?'✓':'✗';
+  var fb = document.getElementById('fb');
+  fb.className = 'fb show '+(o.correcta?'ok':'no');
+  fb.innerHTML = '<div class="fh">'+(o.correcta?'✓ Correcto':'✗ Repensemos')+'</div>'+esc(o.feedback);
+  if(o.correcta){
+    // deshabilitar todas y mostrar aprendizaje + siguiente
+    for(var k=0;k<opts.length;k++) opts[k].classList.add('disabled');
+    if(et.aprendizaje) fb.innerHTML += '<div class="socratic">💡 '+esc(et.aprendizaje)+'</div>';
+    var nw = document.getElementById('nextWrap');
+    var last = STATE.idx >= STATE.game.etapas.length-1;
+    nw.innerHTML = '<button class="btn btn-primary" style="margin-top:14px" onclick="'+(last?'finishCaso()':'renderStage('+(STATE.idx+1)+')')+'">'+(last?'Ver síntesis →':'Siguiente etapa →')+'</button>';
+  } else {
+    opts[oi].classList.add('disabled');
+  }
+}
+function finishCaso(){
+  showResults({ type:'caso', score:STATE.score, total:STATE.game.etapas.length, synth:STATE.game.sintesis });
+}
+
+/* ---------- QUIZ / RÁPIDO ---------- */
+function renderQuiz(game){
+  STATE.quizTries=[];
+  var el = document.getElementById('p-game');
+  el.innerHTML = gameHeader(game.titulo, (game.meta&&game.meta.tema)||'', false)
+    + '<div class="stagebar" id="stagebar"></div><div id="qBox"></div>';
+  renderQ(0);
+}
+function renderQ(i){
+  var game=STATE.game, q=game.preguntas[i]; STATE.idx=i;
+  var sb=document.getElementById('stagebar'); sb.innerHTML='';
+  game.preguntas.forEach(function(_,k){ sb.innerHTML+='<div class="sg '+(k<i?'done':(k===i?'cur':''))+'"></div>'; });
+  var box=document.getElementById('qBox');
+  var h='<div style="margin-bottom:8px">'+ejeTag(q.eje)+' <span style="font-size:12px;color:var(--muted);font-weight:700;margin-left:6px">'+(i+1)+'/'+game.preguntas.length+'</span></div>';
+  h+='<div class="q">'+esc(q.enunciado)+'</div>'+timerHTML()+'<div class="opts" id="opts"></div><div class="fb" id="fb"></div><div id="nextWrap"></div>';
+  box.innerHTML=h;
+  var opts=document.getElementById('opts');
+  q.opciones.forEach(function(o,oi){
+    var b=document.createElement('button'); b.className='opt';
+    b.innerHTML='<span class="mk">'+String.fromCharCode(65+oi)+'</span><span>'+esc(o.texto)+'</span>';
+    b.onclick=function(){ answerQ(oi); };
+    opts.appendChild(b);
+  });
+  STATE._qTried=false;
+  startTimer(function(){ answerQ(-1); });
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+function answerQ(oi){
+  if(STATE._qTried) return;
+  STATE._qTried=true; stopTimer();
+  var q=STATE.game.preguntas[STATE.idx], opts=document.getElementById('opts').children;
+  var timeout = (oi<0), o = timeout ? null : q.opciones[oi];
+  var acerto = !timeout && o.correcta;
+  STATE.quizTries[STATE.idx]=acerto; if(acerto) STATE.score++; updateScore();
+  for(var k=0;k<opts.length;k++){
+    var ok=q.opciones[k].correcta;
+    opts[k].classList.add('disabled');
+    if(ok){ opts[k].classList.add('correct'); opts[k].querySelector('.mk').textContent='✓'; }
+    if(k===oi && !ok){ opts[k].classList.add('wrong'); opts[k].querySelector('.mk').textContent='✗'; }
+  }
+  var fb=document.getElementById('fb');
+  fb.className='fb show '+(acerto?'ok':'no');
+  fb.innerHTML='<div class="fh">'+(timeout?'⏱ Tiempo agotado':(acerto?'✓ Correcto':'✗ Incorrecto'))+'</div>'
+    +(timeout?'Se acabó el tiempo. Revisa la respuesta correcta.':esc(o.feedback))+
+    '<div class="socratic">'+esc(q.explicacion)+'</div>';
+  var last=STATE.idx>=STATE.game.preguntas.length-1;
+  document.getElementById('nextWrap').innerHTML=
+    '<button class="btn btn-primary" style="margin-top:14px" onclick="'+(last?'finishQuiz()':'renderQ('+(STATE.idx+1)+')')+'">'+(last?'Ver resultados →':'Siguiente →')+'</button>';
+}
+function finishQuiz(){ showResults({ type:'quiz', score:STATE.score, total:STATE.game.preguntas.length }); }
+
+/* ================= RESULTADOS ================= */
+function showResults(r){
+  var el=document.getElementById('p-results');
+  var total=r.total, correct=r.score, pct=total?Math.round(correct/total*100):0;
+  var h = resultRing(pct, correct+' de '+total+' correctas');
+  h += '<div class="stat-grid"><div class="stat"><div class="n">'+correct+'</div><div class="l">aciertos</div></div>'
+     + '<div class="stat"><div class="n">'+(total-correct)+'</div><div class="l">a repasar</div></div></div>';
+  h += ejeBreakdown(r.type);
+  h += '<div class="result-big"><div class="msg">'+resultMsg(r)+'</div></div>';
+  if(r.synth){ h += '<div class="synth"><div class="sl">Síntesis del caso</div>'+esc(r.synth)+'</div>'; }
+  h += endButtonsHTML();
+  el.innerHTML = h;
+  show('results'); window.scrollTo(0,0);
+}
+function resultRing(pct, sub){
+  var color = pct>=80?'var(--teal)':pct>=50?'var(--amber)':'var(--red)';
+  var deg = pct*3.6;
+  return '<div class="result-big"><div class="ring" style="border-radius:50%;background:conic-gradient('+color+' '+deg+'deg, var(--line) 0)">'
+    + '<div style="position:absolute;inset:10px;background:#fff;border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center">'
+    + '<div class="pct">'+pct+'%</div></div></div><div class="msg">'+esc(sub)+'</div></div>';
+}
+function ejeBreakdown(type){
+  var arr = type==='caso'? STATE.game.etapas : STATE.game.preguntas;
+  var tries = type==='caso'? STATE.caseTries : STATE.quizTries;
+  var agg={};
+  arr.forEach(function(it,i){ var e=it.eje||'otros'; if(!agg[e]) agg[e]={ok:0,n:0}; agg[e].n++; if(tries[i]) agg[e].ok++; });
+  var keys=Object.keys(agg); if(!keys.length) return '';
+  var h='<div style="font-size:12px;font-weight:700;color:var(--navy);text-transform:uppercase;letter-spacing:.3px;margin:18px 0 10px">Por eje de razonamiento</div><div class="eje-break">';
+  keys.forEach(function(k){
+    var a=agg[k], p=Math.round(a.ok/a.n*100);
+    h+='<div class="er"><div class="en">'+ejeTag(k)+'</div><div class="bar"><span style="width:'+p+'%"></span></div><div class="ev">'+a.ok+'/'+a.n+'</div></div>';
+  });
+  return h+'</div>';
+}
+function resultMsg(r){
+  var pct = r.total ? r.score/r.total*100 : 0;
+  if(pct>=80) return '¡Excelente razonamiento clínico! Domina el tema.';
+  if(pct>=50) return 'Buen trabajo. Repasa los ejes con menor puntaje.';
+  return 'Terreno para crecer. Vuelve sobre la fuente y reintenta.';
+}
+
+/* ================= PERSISTENCIA DE JUEGOS ================= */
+function saveGame(game){
+  var arr = getGames();
+  var item = { id:Date.now(), titulo:game.titulo||'Juego', mode:game._mode, tema:(game.meta&&game.meta.tema)||'', fecha:new Date().toLocaleDateString('es'), data:game };
+  arr.unshift(item);
+  if(arr.length>12) arr=arr.slice(0,12);
+  try{ localStorage.setItem(LS.games, JSON.stringify(arr)); }catch(e){}
+  renderSaved();
+}
+function getGames(){ try{ return JSON.parse(localStorage.getItem(LS.games)||'[]'); }catch(e){ return []; } }
+function renderSaved(){
+  var arr=getGames(), wrap=document.getElementById('savedWrap'), list=document.getElementById('savedList');
+  if(!arr.length){ wrap.style.display='none'; return; }
+  wrap.style.display='block';
+  var icons={caso:'🩺',jeopardy:'🎯',quiz:'🧠',rapido:'⚡'};
+  list.innerHTML='';
+  arr.forEach(function(it){
+    var d=document.createElement('div'); d.className='saved-item';
+    d.innerHTML='<div class="tag">'+(icons[it.mode]||'🎲')+'</div>'
+      +'<div class="meta"><div class="t">'+esc(it.titulo)+'</div><div class="d">'+esc(it.tema||'')+' · '+it.fecha+'</div></div>'
+      +'<div class="del" onclick="event.stopPropagation();editSaved('+it.id+')" title="Revisar y editar">✏️</div>'
+      +'<div class="del" onclick="event.stopPropagation();delGame('+it.id+')">🗑️</div>';
+    d.onclick=function(){ STATE.mode=it.mode; STATE.game=it.data; startGame(it.data); };
+    list.appendChild(d);
+  });
+}
+function editSaved(id){
+  var it=getGames().filter(function(g){return g.id===id;})[0];
+  if(it){ STATE.mode=it.data._mode; STATE.game=it.data; renderReview(it.data); }
+}
+function delGame(id){
+  var arr=getGames().filter(function(g){return g.id!==id;});
+  localStorage.setItem(LS.games, JSON.stringify(arr));
+  renderSaved();
+}
+
+/* ================= UTILIDADES UI ================= */
+function gameHeader(title, tema, showScore){
+  var h='<div class="gh"><div class="gh-t"><h2>'+esc(title||'Juego')+'</h2><div class="gh-s">'+esc(tema||'')+'</div></div><div class="gh-r">';
+  if(showScore!==false) h+='<div class="score-pill" id="scorePill">0</div>';
+  h+='<button class="iconbtn" title="Exportar juego completo" onclick="openExport()">🖨️</button>';
+  h+='</div></div>';
+  return h;
+}
+function endButtonsHTML(){
+  return '<div class="btn-row" style="margin-top:18px">'
+    + '<button class="btn btn-ghost" onclick="startGame(STATE.game)">↻ Repetir</button>'
+    + '<button class="btn btn-primary" onclick="show(\'setup\')">Nuevo juego</button></div>'
+    + '<div class="btn-row" style="margin-top:10px"><button class="btn btn-blue" onclick="openExport()">🖨️ Exportar</button>'
+    + '<button class="btn btn-ghost" onclick="downloadGame()">💾 Descargar</button></div>';
+}
+
+/* ================= EXPORTAR / IMPRIMIR JUEGO COMPLETO ================= */
+function openExport(){
+  if(!STATE.game) return;
+  document.getElementById('printView').innerHTML = buildExport(STATE.game);
+  document.getElementById('printView').classList.add('show');
+  window.scrollTo(0,0);
+}
+function closeExport(){ document.getElementById('printView').classList.remove('show'); }
+function optsExport(opciones){
+  var h = '<ul class="pv-opts">';
+  (opciones||[]).forEach(function(o,oi){
+    h += '<li class="'+(o.correcta?'ok':'')+'">'+String.fromCharCode(65+oi)+') '+esc(o.texto)
+       + (o.correcta?' <b>✓ CORRECTA</b>':'')
+       + '<div class="pv-fb">'+esc(o.feedback)+'</div></li>';
+  });
+  return h+'</ul>';
+}
+function buildExport(g){
+  var m = g._mode;
+  var h = '<div class="pv-actions">'
+        + '<button class="btn btn-ghost" onclick="closeExport()">← Volver</button>'
+        + '<button class="btn btn-primary" onclick="window.print()">🖨️ Imprimir / Guardar PDF</button></div>';
+  h += '<div class="pv-doc"><h1>'+esc(g.titulo||'Juego')+'</h1>';
+  h += '<div class="pv-meta">'+esc((g.meta&&g.meta.tema)||'')+' · Nivel: '+esc((g.meta&&g.meta.nivel)||'')
+     + ' · Generado el '+new Date().toLocaleDateString('es')+'</div>';
+
+  if(m==='jeopardy'){
+    (g.categorias||[]).forEach(function(c){
+      h += '<h2>'+esc(c.nombre)+'</h2>';
+      (c.pistas||[]).forEach(function(p){
+        h += '<div class="pv-item"><h3>'+(p.valor||'')+' puntos '+ejeTag(p.eje)+'</h3>'
+           + '<div class="pv-q">'+esc(p.pista)+'</div>'
+           + '<div class="pv-a"><b>Respuesta:</b> '+esc(p.respuesta)+'</div>'
+           + '<div class="pv-e"><b>Explicación:</b> '+esc(p.explicacion)+'</div></div>';
+      });
+    });
+  } else if(m==='caso'){
+    h += '<h2>Presentación</h2><div class="pv-item">'+esc(g.presentacion)+'</div>';
+    (g.etapas||[]).forEach(function(et,i){
+      h += '<div class="pv-item"><h3>Etapa '+(i+1)+' · '+esc(et.titulo)+' '+ejeTag(et.eje)+'</h3>';
+      if(et.contexto) h += '<div class="pv-ctx">'+esc(et.contexto)+'</div>';
+      h += '<div class="pv-q">'+esc(et.pregunta)+'</div>' + optsExport(et.opciones);
+      if(et.aprendizaje) h += '<div class="pv-e"><b>Aprendizaje:</b> '+esc(et.aprendizaje)+'</div>';
+      h += '</div>';
+    });
+    if(g.sintesis) h += '<h2>Síntesis</h2><div class="pv-item">'+esc(g.sintesis)+'</div>';
+  } else {
+    (g.preguntas||[]).forEach(function(q,i){
+      h += '<div class="pv-item"><h3>'+(i+1)+'. '+ejeTag(q.eje)+'</h3>'
+         + '<div class="pv-q">'+esc(q.enunciado)+'</div>' + optsExport(q.opciones)
+         + '<div class="pv-e"><b>Explicación:</b> '+esc(q.explicacion)+'</div></div>';
+    });
+  }
+  return h + '</div>';
+}
+function updateScore(){
+  var el=document.getElementById('scorePill'); if(!el) return;
+  el.textContent = STATE.game._mode==='jeopardy'? (STATE.score+' pts') : STATE.score;
+}
+function ejeTag(e){ var k=e||'semiologico'; return '<span class="eje eje-'+k+'">'+(EJE_LABEL[k]||k)+'</span>'; }
+function esc(s){ return (''+(s==null?'':s)).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>'); }
+function show(p){
+  ['setup','loading','game','results'].forEach(function(x){ document.getElementById('p-'+x).classList.toggle('active', x===p); });
+}
+
+/* ================= CLAVE / MODAL ================= */
+function openKey(){
+  document.getElementById('apiKey').value = localStorage.getItem(LS.key)||'';
+  document.getElementById('model').value = localStorage.getItem(LS.model)||'claude-haiku-4-5';
+  document.getElementById('keyModal').classList.add('show');
+}
+function closeKey(){ document.getElementById('keyModal').classList.remove('show'); }
+function saveKey(){
+  var k=document.getElementById('apiKey').value.trim();
+  localStorage.setItem(LS.key,k);
+  localStorage.setItem(LS.model, document.getElementById('model').value);
+  closeKey();
+}
+
+/* cerrar modales tocando fuera */
+['cellModal','keyModal'].forEach(function(id){
+  document.getElementById(id).addEventListener('click',function(e){ if(e.target.id===id) this.classList.remove('show'); });
+});
+
+/* ================= ARCHIVOS (PDF / WORD / TEXTO) ================= */
+var MAX_FILES=8, MAX_MB=28;
+function humanSize(b){ return b<1048576 ? (Math.round(b/1024)+' KB') : ((b/1048576).toFixed(1)+' MB'); }
+function fileIcon(k){ return k==='pdf'?'📄':k==='word'?'📝':'📃'; }
+function loadMammoth(){
+  return new Promise(function(res,rej){
+    if(window.mammoth) return res(window.mammoth);
+    var s=document.createElement('script');
+    s.src='https://unpkg.com/mammoth@1.8.0/mammoth.browser.min.js';
+    s.onload=function(){ window.mammoth ? res(window.mammoth) : rej(new Error('Lector de Word no disponible.')); };
+    s.onerror=function(){ rej(new Error('No se pudo cargar el lector de Word. Revisa tu conexión o pega el texto.')); };
+    document.head.appendChild(s);
+  });
+}
+function abToB64(buf){
+  var bytes=new Uint8Array(buf), bin='', chunk=0x8000;
+  for(var i=0;i<bytes.length;i+=chunk){ bin+=String.fromCharCode.apply(null, bytes.subarray(i,i+chunk)); }
+  return btoa(bin);
+}
+async function addFiles(arr){
+  document.getElementById('setupErr').className='err';
+  for(var i=0;i<arr.length;i++){
+    if(STATE.files.length>=MAX_FILES) break;
+    var f=arr[i], low=f.name.toLowerCase();
+    var kind = low.endsWith('.pdf')?'pdf' : (low.endsWith('.docx')||low.endsWith('.doc'))?'word':'text';
+    var rec={ id:'f'+Date.now()+'-'+i, name:f.name, size:f.size, kind:kind, status:'proc', data:'', err:'' };
+    STATE.files.push(rec); renderFiles(); updateGenState();
+    try{
+      if(low.endsWith('.doc') && !low.endsWith('.docx')) throw new Error('El formato .doc antiguo no se soporta; guarda como .docx o PDF.');
+      if(kind==='pdf'){
+        rec.data = abToB64(await f.arrayBuffer());
+      } else if(kind==='word'){
+        var M = await loadMammoth();
+        var r = await M.extractRawText({ arrayBuffer: await f.arrayBuffer() });
+        rec.data = (r.value||'').trim();
+        if(!rec.data) throw new Error('No se pudo extraer texto del documento.');
+      } else {
+        rec.data = (await f.text()).trim();
+        if(!rec.data) throw new Error('Archivo vacío.');
+      }
+      rec.status='ok';
+    }catch(e){ rec.status='err'; rec.err=e.message||'No se pudo procesar.'; }
+    renderFiles(); updateGenState();
+  }
+}
+function removeFile(id){ STATE.files=STATE.files.filter(function(x){return x.id!==id;}); renderFiles(); updateGenState(); }
+function renderFiles(){
+  var list=document.getElementById('fileList'); if(!list) return; list.innerHTML='';
+  STATE.files.forEach(function(r){
+    var sub = r.status==='proc' ? '<span class="mini-spin"></span> procesando…'
+            : r.status==='err' ? esc(r.err)
+            : (r.kind==='pdf' ? humanSize(r.size)+' · se envía como documento' : humanSize(r.size)+' · '+(r.data||'').length+' caracteres');
+    var d=document.createElement('div'); d.className='filechip'+(r.status==='err'?' err':'');
+    d.innerHTML='<div class="fic">'+fileIcon(r.kind)+'</div><div class="fmeta"><div class="fname">'+esc(r.name)+'</div><div class="fsub">'+sub+'</div></div><div class="fx" onclick="removeFile(\''+r.id+'\')">✕</div>';
+    list.appendChild(d);
+  });
+}
+function readyFiles(){ return STATE.files.filter(function(r){return r.status==='ok';}); }
+function anyProcessing(){ return STATE.files.some(function(r){return r.status==='proc';}); }
+function hasSource(){ return document.getElementById('src').value.trim().length>=3 || readyFiles().length>0; }
+function updateGenState(){
+  var b=document.getElementById('genBtn');
+  b.disabled = !hasSource() || anyProcessing();
+  b.textContent = anyProcessing() ? 'Procesando archivos…' : '✨ Generar juego';
+}
+
+/* ================= INTERRUPTOR REMOTO ================= */
+function showGate(html){ document.getElementById('gateBox').innerHTML=html; document.getElementById('gate').classList.add('show'); }
+function hideGate(){ document.getElementById('gate').classList.remove('show'); }
+async function checkSwitch(){
+  if(!CONTROL_URL){ return; } // interruptor desactivado
+  showGate('<div class="spinner"></div><div class="gate-msg">Verificando disponibilidad del material…</div>');
+  try{
+    var url = CONTROL_URL + (CONTROL_URL.indexOf('?')>=0?'&':'?') + 'nc=' + Date.now();
+    var ctrl = new AbortController(); var to = setTimeout(function(){ ctrl.abort(); }, 9000);
+    var res = await fetch(url, { cache:'no-store', signal:ctrl.signal });
+    clearTimeout(to);
+    if(!res.ok) throw new Error('http '+res.status);
+    var raw = (await res.text()).trim();
+    var activo = true, msg = '';
+    try{
+      var j = JSON.parse(raw);
+      if(typeof j === 'boolean') activo = j;
+      else if(j && typeof j === 'object'){ activo = !(j.activo===false || j.activo===0 || j.activo==='false' || j.activo==='no'); msg = j.mensaje || j.message || ''; }
+    }catch(e){
+      var low = raw.toLowerCase();
+      activo = !(low==='false' || low==='off' || low==='0' || low==='apagado' || low==='inactivo' || low==='no');
+    }
+    if(!activo){
+      showGate('<div class="gate-ic">🔒</div><div class="gate-title">Material no disponible</div><div class="gate-msg">'+esc(msg||'Este material fue cerrado por el docente.')+'</div><div class="gate-note">Si crees que es un error, contacta a quien te lo compartió.</div>');
+      return;
+    }
+    hideGate();
+  }catch(e){
+    showGate('<div class="gate-ic">📡</div><div class="gate-title">No se pudo verificar</div><div class="gate-msg">Se necesita conexión a internet para abrir este material. Revisa tu conexión e inténtalo de nuevo.</div><div class="gate-note"><button class="link" onclick="location.reload()">↻ Reintentar</button></div>');
+  }
+}
+
+/* ================= INIT ================= */
+checkSwitch();
+document.getElementById('modes').addEventListener('click',function(e){
+  var m=e.target.closest('.mode'); if(!m) return;
+  document.querySelectorAll('.mode').forEach(function(x){x.classList.remove('sel');});
+  m.classList.add('sel'); STATE.mode=m.getAttribute('data-mode');
+});
+document.getElementById('src').addEventListener('input',function(){
+  document.getElementById('srcCount').textContent=this.value.length;
+  updateGenState();
+});
+document.getElementById('fileInput').addEventListener('change',function(){
+  addFiles(Array.prototype.slice.call(this.files)); this.value='';
+});
+document.getElementById('gameFile').addEventListener('change',function(){
+  if(this.files && this.files[0]) importGame(this.files[0]);
+  this.value='';
+});
+document.getElementById('timer').addEventListener('change',function(){
+  try{ localStorage.setItem('jc_timer', this.value); }catch(e){}
+});
+(function(){ var t=localStorage.getItem('jc_timer'); if(t) document.getElementById('timer').value=t; })();
+(function(){
+  var sc=document.getElementById('srcCard'), dz=document.getElementById('dropz');
+  sc.addEventListener('dragover',function(e){ e.preventDefault(); dz.classList.add('over'); });
+  sc.addEventListener('dragleave',function(e){ e.preventDefault(); dz.classList.remove('over'); });
+  sc.addEventListener('drop',function(e){
+    e.preventDefault(); dz.classList.remove('over');
+    var dt=e.dataTransfer; if(dt && dt.files && dt.files.length) addFiles(Array.prototype.slice.call(dt.files));
+  });
+})();
+renderSaved();
+updateGenState();
+</script>
+</body>
+</html>
