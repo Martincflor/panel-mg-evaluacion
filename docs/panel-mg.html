@@ -1,0 +1,1057 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Panel MG · Evaluación funcional en miastenia gravis</title>
+<style>
+  :root{
+    --ink:#16213A;
+    --ink-soft:#4B5568;
+    --ink-faint:#8891A5;
+    --bg:#EEF1F6;
+    --surface:#FFFFFF;
+    --surface-alt:#F5F7FA;
+    --brand:#1F3864;
+    --brand-light:#2E5395;
+    --teal:#0E7C7B;
+    --teal-light:#E4F3F2;
+    --sev0:#2E7D5B; --sev0-bg:#E5F2EC;
+    --sev1:#A9821A; --sev1-bg:#FBF3DC;
+    --sev2:#C06A22; --sev2-bg:#FBEADB;
+    --sev3:#B33A3A; --sev3-bg:#FAE4E4;
+    --border:#DDE3EB;
+    --radius:10px;
+    --font-display: ui-serif, Georgia, "Iowan Old Style", "Palatino Linotype", "Book Antiqua", serif;
+    --font-body: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    --font-mono: ui-monospace, "SF Mono", "Cascadia Code", Consolas, "Liberation Mono", monospace;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--bg);
+    color:var(--ink);
+    font-family:var(--font-body);
+    font-size:15px;
+    line-height:1.5;
+    -webkit-font-smoothing:antialiased;
+  }
+  a{color:var(--teal);}
+  h1,h2,h3{font-family:var(--font-display); font-weight:600; margin:0 0 6px 0; color:var(--brand);}
+  .mono{font-family:var(--font-mono);}
+
+  /* ---------- Skip link / focus ---------- */
+  .skip-link{position:absolute; left:-999px; top:0; background:var(--brand); color:#fff; padding:10px 16px; z-index:200; border-radius:0 0 8px 0;}
+  .skip-link:focus{left:0;}
+  :focus-visible{outline:3px solid var(--teal); outline-offset:2px;}
+
+  /* ---------- Top header + hero waveform ---------- */
+  header.app-header{
+    background:linear-gradient(180deg, var(--brand) 0%, #16294A 100%);
+    color:#fff;
+    padding:22px 28px 0 28px;
+  }
+  .header-row{
+    display:flex; align-items:flex-start; justify-content:space-between; gap:20px; flex-wrap:wrap;
+    max-width:1180px; margin:0 auto;
+  }
+  .brand-block .eyebrow{
+    text-transform:uppercase; letter-spacing:.14em; font-size:11px; color:#9FB4D8; font-weight:600; margin-bottom:4px;
+  }
+  .brand-block h1{color:#fff; font-size:26px; margin-bottom:2px;}
+  .brand-block p.sub{color:#C4D2E8; font-size:13.5px; margin:0; max-width:520px;}
+  .privacy-chip{
+    display:inline-flex; align-items:center; gap:6px; background:rgba(255,255,255,.08); border:1px solid rgba(255,255,255,.22);
+    color:#DCE7F7; font-size:12px; padding:6px 12px; border-radius:999px; margin-top:10px;
+  }
+  .privacy-chip .dot{width:7px;height:7px;border-radius:50%;background:#5FD3A5;display:inline-block;}
+
+  .patient-bar{
+    background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.15); border-radius:var(--radius);
+    padding:14px 16px; display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:12px;
+    min-width:300px; max-width:460px; width:100%;
+  }
+  .patient-bar label{display:block; font-size:10.5px; text-transform:uppercase; letter-spacing:.08em; color:#9FB4D8; margin-bottom:4px;}
+  .patient-bar input, .patient-bar select{
+    width:100%; background:rgba(255,255,255,.94); border:none; border-radius:6px; padding:7px 8px; font-size:13px; color:var(--ink); font-family:var(--font-body);
+  }
+
+  /* ---------- Waveform (signature element) ---------- */
+  .waveform-wrap{max-width:1180px; margin:18px auto 0 auto; padding:0 0 14px 0;}
+  .waveform-caption{display:flex; justify-content:space-between; align-items:baseline; color:#9FB4D8; font-size:11.5px; margin-bottom:4px;}
+  .waveform-caption .idx{color:#fff; font-family:var(--font-mono); font-size:12.5px;}
+  svg.waveform{display:block; width:100%; height:64px;}
+
+  /* ---------- Layout ---------- */
+  .app-shell{max-width:1180px; margin:0 auto; padding:22px 28px 60px 28px; display:grid; grid-template-columns:220px 1fr; gap:26px;}
+  nav.stepper{position:sticky; top:16px; align-self:start; display:flex; flex-direction:column; gap:4px;}
+  nav.stepper button{
+    text-align:left; background:none; border:none; padding:10px 12px; border-radius:8px; cursor:pointer;
+    font-family:var(--font-body); font-size:13.5px; color:var(--ink-soft); display:flex; align-items:center; gap:10px;
+    border-left:3px solid transparent;
+  }
+  nav.stepper button .n{font-family:var(--font-mono); font-size:11px; color:var(--ink-faint); width:16px;}
+  nav.stepper button:hover{background:var(--surface-alt);}
+  nav.stepper button.active{background:var(--surface); border-left:3px solid var(--teal); color:var(--brand); font-weight:600; box-shadow:0 1px 3px rgba(22,33,58,.08);}
+  nav.stepper button.active .n{color:var(--teal);}
+  nav.stepper .badge{margin-left:auto; font-family:var(--font-mono); font-size:11px; background:var(--surface-alt); border:1px solid var(--border); padding:1px 6px; border-radius:20px; color:var(--ink-soft);}
+  nav.stepper button.active .badge{background:var(--teal-light); border-color:var(--teal); color:var(--teal);}
+
+  main{min-width:0;}
+  .panel{background:var(--surface); border:1px solid var(--border); border-radius:14px; padding:26px 28px; box-shadow:0 1px 2px rgba(22,33,58,.04);}
+  .panel-head{display:flex; justify-content:space-between; align-items:flex-start; gap:16px; margin-bottom:6px; flex-wrap:wrap;}
+  .panel-head h2{font-size:21px;}
+  .panel-desc{color:var(--ink-soft); font-size:13.5px; max-width:640px; margin-bottom:18px;}
+  .score-pill{
+    font-family:var(--font-mono); font-size:13px; padding:8px 14px; border-radius:10px; white-space:nowrap;
+    background:var(--surface-alt); border:1px solid var(--border); color:var(--ink);
+  }
+  .score-pill b{font-size:17px;}
+  .score-pill.sev0{background:var(--sev0-bg); color:var(--sev0); border-color:transparent;}
+  .score-pill.sev1{background:var(--sev1-bg); color:var(--sev1); border-color:transparent;}
+  .score-pill.sev2{background:var(--sev2-bg); color:var(--sev2); border-color:transparent;}
+  .score-pill.sev3{background:var(--sev3-bg); color:var(--sev3); border-color:transparent;}
+
+  .approx-flag{
+    display:flex; gap:10px; align-items:flex-start; background:#FBF3DC; border:1px solid #ECDBA0; color:#6B551A;
+    border-radius:8px; padding:10px 12px; font-size:12.5px; margin-bottom:18px;
+  }
+  .approx-flag svg{flex:none; margin-top:1px;}
+
+  /* item rows */
+  .item{border-top:1px solid var(--border); padding:16px 0;}
+  .item:first-of-type{border-top:1px solid var(--border);}
+  .item .item-label{font-size:14px; font-weight:600; color:var(--ink); margin-bottom:2px;}
+  .item .item-help{font-size:12px; color:var(--ink-faint); margin-bottom:10px;}
+  .opts{display:grid; grid-template-columns:repeat(auto-fit,minmax(160px,1fr)); gap:8px;}
+  .opt{
+    position:relative; border:1px solid var(--border); border-radius:8px; padding:9px 10px 9px 34px; cursor:pointer;
+    font-size:13px; color:var(--ink-soft); transition:border-color .12s, background .12s;
+  }
+  .opt:hover{border-color:var(--teal);}
+  .opt input{position:absolute; left:10px; top:11px; margin:0;}
+  .opt.checked{border-color:var(--teal); background:var(--teal-light); color:var(--ink); font-weight:600;}
+  .opt .v-tag{font-family:var(--font-mono); font-size:10.5px; color:var(--ink-faint); display:block; margin-top:2px;}
+  .opt.checked .v-tag{color:var(--teal);}
+
+  .likert-row{display:flex; gap:6px; flex-wrap:wrap;}
+  .likert-row .opt{flex:1; min-width:86px; text-align:center; padding:9px 6px;}
+  .likert-row .opt input{position:static; display:block; margin:0 auto 5px auto;}
+
+  .mgfa-grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:12px;}
+  .mgfa-card{border:1px solid var(--border); border-radius:10px; padding:14px; cursor:pointer;}
+  .mgfa-card:hover{border-color:var(--teal);}
+  .mgfa-card.checked{border-color:var(--teal); background:var(--teal-light);}
+  .mgfa-card .code{font-family:var(--font-mono); font-weight:700; color:var(--brand); font-size:15px;}
+  .mgfa-card p{margin:4px 0 0 0; font-size:12.5px; color:var(--ink-soft);}
+  .mgfa-card input{margin-right:8px;}
+
+  .panel-actions{display:flex; justify-content:flex-end; gap:10px; margin-top:22px; padding-top:16px; border-top:1px solid var(--border);}
+  button.btn{
+    font-family:var(--font-body); font-size:13px; font-weight:600; padding:10px 16px; border-radius:8px; cursor:pointer;
+    border:1px solid var(--border); background:var(--surface); color:var(--ink);
+  }
+  button.btn:hover{border-color:var(--teal); color:var(--teal);}
+  button.btn.primary{background:var(--brand); border-color:var(--brand); color:#fff;}
+  button.btn.primary:hover{background:var(--brand-light); border-color:var(--brand-light); color:#fff;}
+  button.btn.teal{background:var(--teal); border-color:var(--teal); color:#fff;}
+  button.btn.teal:hover{background:#0B6564; border-color:#0B6564;}
+  button.btn.ghost{background:none;}
+  button.btn:disabled{opacity:.45; cursor:not-allowed;}
+
+  /* Summary */
+  .summary-grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(210px,1fr)); gap:14px; margin-bottom:22px;}
+  .summary-card{border:1px solid var(--border); border-radius:12px; padding:16px; background:var(--surface-alt);}
+  .summary-card h3{font-size:12.5px; text-transform:uppercase; letter-spacing:.06em; color:var(--ink-soft); font-family:var(--font-body); font-weight:700; margin-bottom:8px;}
+  .summary-card .big{font-family:var(--font-mono); font-size:28px; font-weight:700; color:var(--brand); line-height:1;}
+  .summary-card .of{font-size:12px; color:var(--ink-faint);}
+  .summary-card .interp{margin-top:8px; display:inline-block; font-size:11.5px; padding:3px 9px; border-radius:20px; font-weight:600;}
+  .meter{height:7px; border-radius:20px; background:var(--border); margin-top:10px; overflow:hidden;}
+  .meter > div{height:100%; border-radius:20px;}
+
+  table.history{width:100%; border-collapse:collapse; font-size:12.5px;}
+  table.history th{text-align:left; font-size:11px; text-transform:uppercase; letter-spacing:.05em; color:var(--ink-faint); border-bottom:1px solid var(--border); padding:8px 8px;}
+  table.history td{border-bottom:1px solid var(--border); padding:9px 8px; color:var(--ink-soft);}
+  table.history td.num{font-family:var(--font-mono); color:var(--ink);}
+  table.history tr:hover td{background:var(--surface-alt);}
+  .row-check{display:flex; align-items:center; gap:6px;}
+
+  .delta-panel{border:1px solid var(--border); border-radius:12px; padding:18px; margin-top:16px; background:var(--surface-alt);}
+  .delta-grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(170px,1fr)); gap:12px; margin-top:12px;}
+  .delta-item{background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:12px;}
+  .delta-item .lab{font-size:11.5px; color:var(--ink-faint); text-transform:uppercase; letter-spacing:.05em;}
+  .delta-item .val{font-family:var(--font-mono); font-size:20px; font-weight:700; margin-top:4px;}
+  .delta-item .tag{font-size:11px; margin-top:4px; display:inline-block; padding:2px 8px; border-radius:20px;}
+  .tag-improve{background:var(--sev0-bg); color:var(--sev0);}
+  .tag-worsen{background:var(--sev3-bg); color:var(--sev3);}
+  .tag-stable{background:var(--surface-alt); color:var(--ink-faint); border:1px solid var(--border);}
+
+  .disclaimer{
+    max-width:1180px; margin:0 auto 40px auto; padding:0 28px; color:var(--ink-faint); font-size:11.5px; line-height:1.6;
+  }
+  .disclaimer strong{color:var(--ink-soft);}
+
+  input[type=file]{display:none;}
+
+  /* ---------- Dark mode ---------- */
+  @media (prefers-color-scheme: dark){
+    :root{
+      --ink:#E8EBF0;
+      --ink-soft:#B4BDCA;
+      --ink-faint:#8891A5;
+      --bg:#0D1117;
+      --surface:#161B22;
+      --surface-alt:#21262D;
+      --border:#30363D;
+    }
+  }
+
+  body.dark-mode{
+    --ink:#E8EBF0;
+    --ink-soft:#B4BDCA;
+    --ink-faint:#8891A5;
+    --bg:#0D1117;
+    --surface:#161B22;
+    --surface-alt:#21262D;
+    --border:#30363D;
+  }
+
+  .dark-toggle{
+    position:fixed; bottom:20px; right:20px; z-index:999;
+    background:var(--surface); border:1px solid var(--border); border-radius:50%;
+    width:48px; height:48px; cursor:pointer; display:flex; align-items:center; justify-content:center;
+    font-size:20px; box-shadow:0 2px 8px rgba(0,0,0,.15);
+  }
+
+  .dark-toggle:hover{
+    border-color:var(--teal); color:var(--teal);
+  }
+
+  /* Tooltips */
+  .tooltip-wrap{
+    position:relative; display:inline-block; border-bottom:1px dotted var(--ink-faint); cursor:help;
+  }
+
+  .tooltip-text{
+    visibility:hidden; opacity:0; position:absolute; z-index:1; bottom:125%; left:50%; transform:translateX(-50%);
+    background-color:var(--brand); color:#fff; text-align:center; border-radius:6px; padding:8px 12px;
+    font-size:12px; line-height:1.4; white-space:nowrap; transition:opacity .3s;
+    box-shadow:0 2px 8px rgba(0,0,0,.2); pointer-events:none;
+  }
+
+  .tooltip-text::after{
+    content:""; position:absolute; top:100%; left:50%; transform:translateX(-50%);
+    border-width:5px 5px 0; border-style:solid; border-color:var(--brand) transparent transparent;
+  }
+
+  .tooltip-wrap:hover .tooltip-text{
+    visibility:visible; opacity:1;
+  }
+
+  /* Gráfico de tendencias */
+  .trend-chart{
+    width:100%; height:300px; border:1px solid var(--border); border-radius:10px;
+    background:var(--surface-alt); padding:16px; margin-top:14px;
+  }
+
+  .trend-legend{
+    display:flex; gap:16px; flex-wrap:wrap; margin-top:12px; font-size:12px;
+  }
+
+  .trend-legend-item{
+    display:flex; align-items:center; gap:6px;
+  }
+
+  .trend-legend-dot{
+    width:10px; height:10px; border-radius:50%;
+  }
+
+  @media print{
+    .dark-toggle{display:none !important;}
+  }
+
+  /* ---------- Responsive ---------- */
+  @media (max-width:860px){
+    .app-shell{grid-template-columns:1fr; padding:16px;}
+    nav.stepper{
+      position:static; flex-direction:row; overflow-x:auto; gap:6px; padding-bottom:6px;
+      border-bottom:1px solid var(--border); margin-bottom:6px;
+    }
+    nav.stepper button{white-space:nowrap; border-left:none; border-bottom:3px solid transparent;}
+    nav.stepper button.active{border-left:none; border-bottom:3px solid var(--teal);}
+    header.app-header{padding:18px 16px 0 16px;}
+    .waveform-wrap{padding:0 16px 14px 16px; margin-top:12px;}
+    .panel{padding:18px;}
+  }
+
+  /* ---------- Print ---------- */
+  @media print{
+    body{background:#fff;}
+    header.app-header, nav.stepper, .panel-actions, .privacy-chip, .disclaimer .no-print{display:none !important;}
+    .app-shell{grid-template-columns:1fr; padding:0;}
+    .panel{border:none; box-shadow:none; padding:0;}
+    .opt, .mgfa-card{break-inside:avoid;}
+  }
+</style>
+</head>
+<body>
+<a href="#main" class="skip-link">Saltar al contenido</a>
+
+<header class="app-header">
+  <div class="header-row">
+    <div class="brand-block">
+      <div class="eyebrow">Panel MG · v1.0</div>
+      <h1>Evaluación funcional en miastenia gravis</h1>
+      <p class="sub">Clasificación MGFA, QMG, MGC, MG-ADL y MG-QOL15 en un único flujo de evaluación, con seguimiento longitudinal y exportación local.</p>
+      <div class="privacy-chip"><span class="dot"></span> Todo el procesamiento ocurre en su navegador — no se envían datos a ningún servidor</div>
+    </div>
+    <div class="patient-bar" id="patientBar">
+      <div><label for="pId">Identificador</label><input id="pId" placeholder="Iniciales / expediente"></div>
+      <div><label for="pAge">Edad</label><input id="pAge" placeholder="ej. 11 años"></div>
+      <div><label for="pDate">Fecha de evaluación</label><input id="pDate" type="date"></div>
+      <div><label for="pBy">Completado por</label>
+        <select id="pBy">
+          <option value="paciente">Paciente</option>
+          <option value="cuidador">Cuidador / padre-madre</option>
+          <option value="clinico">Personal clínico</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <div class="waveform-wrap">
+    <div class="waveform-caption">
+      <span>Patrón decremental simulado (análogo a estimulación nerviosa repetitiva) — se ajusta a la carga de síntomas registrada</span>
+      <span class="idx" id="idxLabel">Índice de severidad global: 0%</span>
+    </div>
+    <svg class="waveform" viewBox="0 0 1000 64" preserveAspectRatio="none" id="waveformSvg" aria-hidden="true"></svg>
+  </div>
+</header>
+
+<div class="app-shell">
+  <nav class="stepper" id="stepper" aria-label="Secciones de la evaluación"></nav>
+
+  <main id="main">
+    <div class="panel" id="panel"></div>
+  </main>
+</div>
+
+<p class="disclaimer">
+  <strong>Uso previsto.</strong> Esta herramienta es un apoyo educativo y de seguimiento clínico; no constituye un dispositivo médico ni sustituye el juicio clínico. Los ítems de QMG y MG-ADL siguen la estructura publicada de estos instrumentos; los de MGC se presentan como una <strong>estructura simplificada y transparente</strong> (10 dominios, 0–5 puntos cada uno) y los de MG-QOL15 están <strong>parafraseados</strong> a partir de sus dominios conceptuales habituales. Antes de emplear esta herramienta en investigación o en decisiones clínicas, verifique los ítems, las ponderaciones y los puntos de corte frente a las publicaciones originales de cada escala (grupo de trabajo MGFA; Barohn et al. para QMG; Wolfe et al. para MG-ADL; Burns et al. para MGC y MG-QOL15). Las bandas de interpretación mostradas son orientativas.
+  <span class="no-print"> · <a href="#" id="printLink">Imprimir informe actual</a></span>
+</p>
+
+<script>
+(function(){
+  "use strict";
+
+  /* ================= DATA ================= */
+
+  const MGFA = [
+    {code:"I",   title:"Clase I",    desc:"Debilidad confinada a los músculos oculares (ptosis y/o diplopía). Puede existir cierre ocular débil; el resto de la fuerza es normal."},
+    {code:"IIa", title:"Clase IIa",  desc:"Debilidad leve, con predominio en musculatura de extremidades y/o axial. Puede asociar afectación ocular de cualquier gravedad."},
+    {code:"IIb", title:"Clase IIb",  desc:"Debilidad leve, con predominio en musculatura bulbar y/o respiratoria. Puede asociar afectación ocular de cualquier gravedad."},
+    {code:"IIIa",title:"Clase IIIa", desc:"Debilidad moderada, con predominio en musculatura de extremidades y/o axial. Puede asociar afectación ocular de cualquier gravedad."},
+    {code:"IIIb",title:"Clase IIIb", desc:"Debilidad moderada, con predominio en musculatura bulbar y/o respiratoria. Puede asociar afectación ocular de cualquier gravedad."},
+    {code:"IVa", title:"Clase IVa",  desc:"Debilidad grave, con predominio en musculatura de extremidades y/o axial. Puede asociar afectación ocular de cualquier gravedad."},
+    {code:"IVb", title:"Clase IVb",  desc:"Debilidad grave, con predominio en musculatura bulbar y/o respiratoria. Puede asociar afectación ocular de cualquier gravedad."},
+    {code:"V",   title:"Clase V",    desc:"Crisis miasténica: paciente intubado, con o sin ventilación mecánica (excepto cuando se emplea como manejo posoperatorio de rutina)."}
+  ];
+
+  function opts(labels){ return labels.map((l,v)=>({v,l})); }
+
+  const QMG_ITEMS = [
+    {id:"diplopia", label:"Diplopía en mirada lateral sostenida", help:"Tiempo hasta la aparición de diplopía",
+      opts:opts(["≥61 s (ausente)","11–60 s","1–10 s","Espontánea o constante"])},
+    {id:"ptosis", label:"Ptosis en mirada sostenida hacia arriba", help:"Tiempo hasta la aparición de ptosis",
+      opts:opts(["≥61 s (ausente)","11–60 s","1–10 s","Espontánea"])},
+    {id:"facial", label:"Musculatura facial / cierre ocular", help:"Fuerza de cierre palpebral contra resistencia",
+      opts:opts(["Normal","Cierre completo pero débil","Cierre incompleto, con esfuerzo","Sin cierre palpebral"])},
+    {id:"swallow", label:"Deglución", help:"Prueba con ingesta de agua (aprox. 120 mL)",
+      opts:opts(["Normal","Tos leve o aclaramiento ocasional","Tos/atragantamiento intenso o regurgitación nasal","Incapaz de deglutir con seguridad"])},
+    {id:"speech", label:"Habla", help:"Conteo en voz alta continuo hasta 50",
+      opts:opts(["Sin disartria al llegar a 50","Disartria entre 30 y 49","Disartria entre 10 y 29","Disartria antes de 9"])},
+    {id:"rightarm", label:"Brazo derecho en extensión a 90°", help:"Paciente sentado, tiempo de sostén",
+      opts:opts(["≥240 s","90–239 s","10–89 s","0–9 s"])},
+    {id:"leftarm", label:"Brazo izquierdo en extensión a 90°", help:"Paciente sentado, tiempo de sostén",
+      opts:opts(["≥240 s","90–239 s","10–89 s","0–9 s"])},
+    {id:"vc", label:"Capacidad vital", help:"Porcentaje del valor predicho para edad/talla/sexo",
+      opts:opts(["≥80 %","65–79 %","50–64 %","<50 %"])},
+    {id:"rightgrip", label:"Fuerza de prensión — mano derecha", help:"Dinamometría; calibrar contra referencia local del equipo",
+      opts:opts(["Normal para edad y sexo","Reducción leve","Reducción moderada","Reducción grave / incapaz"])},
+    {id:"leftgrip", label:"Fuerza de prensión — mano izquierda", help:"Dinamometría; calibrar contra referencia local del equipo",
+      opts:opts(["Normal para edad y sexo","Reducción leve","Reducción moderada","Reducción grave / incapaz"])},
+    {id:"headlift", label:"Elevación cefálica a 45°", help:"Decúbito supino, tiempo de sostén",
+      opts:opts(["120 s","30–119 s","1–29 s","0 s (incapaz)"])},
+    {id:"rightleg", label:"Pierna derecha en extensión a 45°", help:"Decúbito supino, tiempo de sostén",
+      opts:opts(["100 s","31–99 s","1–30 s","0 s"])},
+    {id:"leftleg", label:"Pierna izquierda en extensión a 45°", help:"Decúbito supino, tiempo de sostén",
+      opts:opts(["100 s","31–99 s","1–30 s","0 s"])}
+  ];
+
+  const MGADL_ITEMS = [
+    {id:"talking", label:"Habla", opts:opts(["Normal","Alteración intermitente (arrastrada o nasal)","Alteración constante, pero comprensible","Difícil de entender"])},
+    {id:"chewing", label:"Masticación", opts:opts(["Normal","Fatiga con alimentos sólidos","Fatiga con alimentos blandos","Requiere sonda de alimentación"])},
+    {id:"swallowing", label:"Deglución", opts:opts(["Normal","Episodio ocasional de atragantamiento","Atragantamiento frecuente, exige cambios en la dieta","Requiere sonda de alimentación"])},
+    {id:"breathing", label:"Respiración", opts:opts(["Normal","Disnea con el esfuerzo","Disnea en reposo","Requiere ventilador"])},
+    {id:"brushing", label:"Cepillarse los dientes o peinarse", opts:opts(["Sin dificultad","Esfuerzo adicional, sin pausas","Requiere pausas para completar la tarea","No puede realizar una de estas actividades"])},
+    {id:"rising", label:"Levantarse de una silla", opts:opts(["Sin dificultad","Leve; a veces se ayuda con los brazos","Moderada; siempre se ayuda con los brazos","Grave; requiere asistencia de otra persona"])},
+    {id:"diplopiaADL", label:"Visión doble", opts:opts(["Ausente","Presente, no diaria","Diaria, no constante","Constante"])},
+    {id:"ptosisADL", label:"Caída del párpado", opts:opts(["Ausente","Presente, no diaria","Diaria, no constante","Constante"])}
+  ];
+
+  const MGC_LEVELS = opts(["Ausente","Leve","Leve-moderado","Moderado","Moderado-grave","Grave"]); // 0-5
+  const MGC_ITEMS = [
+    {id:"ptosis", label:"Ptosis palpebral", help:"Evaluado por el examinador, mirada sostenida"},
+    {id:"diplopia", label:"Diplopía", help:"Evaluado por el examinador, mirada horizontal sostenida"},
+    {id:"eyeclose", label:"Cierre ocular", help:"Evaluado por el examinador"},
+    {id:"swallow", label:"Deglución", help:"Referida por el paciente o cuidador"},
+    {id:"speech", label:"Habla / disartria", help:"Referida por el paciente o examinador"},
+    {id:"breathing", label:"Función respiratoria", help:"Referida por el paciente; considerar capacidad vital si está disponible"},
+    {id:"armraise", label:"Elevación de brazos (peinarse / cepillarse)", help:"Evaluado por el examinador"},
+    {id:"chair", label:"Levantarse de una silla", help:"Evaluado por el examinador"},
+    {id:"neck", label:"Flexión de cuello", help:"Evaluado por el examinador"},
+    {id:"proximal", label:"Fuerza proximal de extremidades", help:"Evaluado por el examinador"}
+  ];
+
+  const QOL_LEVELS = opts(["Nada","Un poco","Moderadamente","Bastante","Mucho"]); // 0-4
+  const QOL_ITEMS = [
+    {id:"q1", label:"Me ha resultado difícil realizar tareas del hogar por mi enfermedad"},
+    {id:"q2", label:"Mi enfermedad ha limitado mi participación en actividades de ocio"},
+    {id:"q3", label:"He sentido que soy una carga para mi familia debido a mi enfermedad"},
+    {id:"q4", label:"Mi visión se ha visto afectada por mi enfermedad"},
+    {id:"q5", label:"Me ha resultado difícil hablar por mi enfermedad"},
+    {id:"q6", label:"Mi enfermedad ha limitado mi capacidad de disfrutar de mis pasatiempos"},
+    {id:"q7", label:"Mi enfermedad ha limitado mi vida social"},
+    {id:"q8", label:"Me he sentido desanimado/a por mi enfermedad"},
+    {id:"q9", label:"He tenido dificultad para sostener un esfuerzo físico prolongado"},
+    {id:"q10", label:"La frustración por mi enfermedad me ha afectado"},
+    {id:"q11", label:"Mi enfermedad ha limitado mi capacidad de cumplir con las necesidades de mi familia"},
+    {id:"q12", label:"He tenido dificultad para lograr mis metas personales por mi enfermedad"},
+    {id:"q13", label:"He necesitado organizar mis planes en función de la fluctuación de mis síntomas"},
+    {id:"q14", label:"Mi enfermedad me ha generado sentimientos negativos sobre la necesidad de tratamiento"},
+    {id:"q15", label:"Me he sentido abrumado/a por mi enfermedad"}
+  ];
+
+  /* ================= STATE ================= */
+
+  const state = {
+    patient:{id:"",age:"",date:"",by:"paciente"},
+    mgfa:null,
+    qmg:{}, mgadl:{}, mgc:{}, qol:{},
+    history:[], // saved assessments {ts, patient, mgfa, scores:{qmg,mgadl,mgc,qol}}
+    _dirty:false
+  };
+
+  const SECTIONS = [
+    {key:"patient", label:"Datos del paciente"},
+    {key:"mgfa", label:"Clasificación MGFA"},
+    {key:"qmg", label:"QMG", max:39},
+    {key:"mgc", label:"MGC", max:50},
+    {key:"mgadl", label:"MG-ADL", max:24},
+    {key:"qol", label:"MG-QOL15", max:60},
+    {key:"summary", label:"Resumen y seguimiento"}
+  ];
+  let active = "patient";
+  let scoreCache = {};
+
+  /* ================= PERSISTENCE ================= */
+
+  function saveStateToStorage(){
+    try{
+      localStorage.setItem('panel-mg-state', JSON.stringify(state));
+      state._dirty = false;
+    }catch(e){
+      console.warn("No se pudo guardar en localStorage:", e);
+    }
+  }
+
+  function loadStateFromStorage(){
+    try{
+      const saved = localStorage.getItem('panel-mg-state');
+      if(saved){
+        const loaded = JSON.parse(saved);
+        Object.assign(state, loaded);
+        state._dirty = false;
+      }
+    }catch(e){
+      console.warn("No se pudo cargar desde localStorage:", e);
+    }
+  }
+
+  function clearCacheIfDirty(){
+    scoreCache = {};
+  }
+
+  /* ================= SCORING ================= */
+
+  function sumScore(stateObj, items){
+    let sum=0, answered=0;
+    items.forEach(it=>{ if(stateObj[it.id]!==undefined){ sum+=stateObj[it.id]; answered++; } });
+    return {sum, answered, total:items.length};
+  }
+
+  function interp(scaleKey, score){
+    // orientative bands, not validated cutoffs
+    const bands = {
+      qmg:   [[2,"Mínima / remisión",0],[9,"Leve",1],[19,"Moderada",2],[999,"Grave",3]],
+      mgadl: [[1,"Manifestación mínima",0],[5,"Leve",1],[11,"Moderada",2],[999,"Grave",3]],
+      mgc:   [[5,"Mínima",0],[15,"Leve-moderada",1],[30,"Moderada-grave",2],[999,"Grave",3]],
+      qol:   [[15,"Impacto bajo",0],[30,"Impacto moderado",1],[45,"Impacto significativo",2],[999,"Impacto grave",3]]
+    };
+    const b = bands[scaleKey];
+    for(const row of b){ if(score<=row[0]) return {label:row[1], sev:row[2]}; }
+    return {label:"—", sev:0};
+  }
+
+  function severityIndex(){
+    const parts = [];
+    const q = sumScore(state.qmg, QMG_ITEMS); if(q.answered>0) parts.push(q.sum/39);
+    const a = sumScore(state.mgadl, MGADL_ITEMS); if(a.answered>0) parts.push(a.sum/24);
+    const c = sumScoreMGC(); if(c.answered>0) parts.push(c.sum/50);
+    const l = sumScore(state.qol, QOL_ITEMS); if(l.answered>0) parts.push(l.sum/60);
+    if(parts.length===0) return 0;
+    return parts.reduce((s,v)=>s+v,0)/parts.length;
+  }
+
+  function sumScoreMGC(){
+    let sum=0, answered=0;
+    MGC_ITEMS.forEach(it=>{ if(state.mgc[it.id]!==undefined){ sum+=state.mgc[it.id]; answered++; } });
+    return {sum, answered, total:MGC_ITEMS.length};
+  }
+
+  function getProgressPercentage(scaleKey){
+    const map = {qmg:QMG_ITEMS, mgadl:MGADL_ITEMS, qol:QOL_ITEMS, mgc:MGC_ITEMS};
+    const items = map[scaleKey];
+    if(!items) return 0;
+    const r = scaleKey==="mgc"? sumScoreMGC() : sumScore(state[scaleKey], items);
+    return Math.round((r.answered / r.total) * 100);
+  }
+
+  function getOverallProgress(){
+    const parts = [];
+    if(state.mgfa) parts.push(100);
+    parts.push(getProgressPercentage("qmg"));
+    parts.push(getProgressPercentage("mgc"));
+    parts.push(getProgressPercentage("mgadl"));
+    parts.push(getProgressPercentage("qol"));
+    if(parts.length===0) return 0;
+    return Math.round(parts.reduce((a,b)=>a+b, 0) / parts.length);
+  }
+
+  /* ================= WAVEFORM ================= */
+
+  function drawWaveform(){
+    const idx = severityIndex(); // 0..1
+    const svg = document.getElementById("waveformSvg");
+    document.getElementById("idxLabel").textContent = "Índice de severidad global: " + Math.round(idx*100) + "%";
+    const W=1000,H=64, baseline=32, spikes=9, gap=W/spikes;
+    let d = "M0," + baseline;
+    let amp0 = 26;
+    const decay = 0.55 + idx*0.4; // faster decay as severity increases
+    for(let i=0;i<spikes;i++){
+      const x = gap*i + gap*0.3;
+      const amp = amp0 * Math.pow(1-decay, i/2);
+      d += " L" + x.toFixed(1) + "," + (baseline - amp).toFixed(1);
+      d += " L" + (x+gap*0.18).toFixed(1) + "," + baseline;
+      d += " L" + (gap*i+gap*0.55).toFixed(1) + "," + baseline;
+    }
+    d += " L1000," + baseline;
+    const color = idx<0.15? "#5FD3A5" : idx<0.4? "#F2C94C" : idx<0.7? "#F2994A" : "#EB5757";
+    svg.innerHTML =
+      '<line x1="0" y1="'+baseline+'" x2="1000" y2="'+baseline+'" stroke="rgba(255,255,255,.15)" stroke-width="1"/>' +
+      '<path d="'+d+'" fill="none" stroke="'+color+'" stroke-width="2.4" stroke-linejoin="round" stroke-linecap="round" opacity="0.95"/>';
+  }
+
+  /* ================= RENDER: NAV ================= */
+
+  function renderNav(){
+    const nav = document.getElementById("stepper");
+    nav.innerHTML = "";
+    const overall = getOverallProgress();
+    SECTIONS.forEach((s,i)=>{
+      const btn = document.createElement("button");
+      btn.className = "step-btn" + (s.key===active? " active":"");
+      btn.type="button";
+      let badge = "";
+      if(s.key==="qmg"){ const r=sumScore(state.qmg,QMG_ITEMS); badge = r.answered+"/"+r.total; }
+      if(s.key==="mgadl"){ const r=sumScore(state.mgadl,MGADL_ITEMS); badge = r.answered+"/"+r.total; }
+      if(s.key==="mgc"){ const r=sumScoreMGC(); badge = r.answered+"/"+r.total; }
+      if(s.key==="qol"){ const r=sumScore(state.qol,QOL_ITEMS); badge = r.answered+"/"+r.total; }
+      if(s.key==="mgfa"){ badge = state.mgfa? "✓" : "–"; }
+      const progressMark = (s.key!=="patient" && s.key!=="summary" && overall>0)? ' <span style="font-size:10px; color:var(--ink-faint);">'+getProgressPercentage(s.key)+'%</span>' : '';
+      btn.innerHTML = '<span class="n">'+String(i+1).padStart(2,"0")+'</span><span>'+s.label+'</span>' + (badge? '<span class="badge">'+badge+'</span>':'')+progressMark;
+      btn.addEventListener("click", ()=>{ active=s.key; renderAll(); });
+      nav.appendChild(btn);
+    });
+  }
+
+  /* ================= RENDER: PANELS ================= */
+
+  function scorePillHTML(score, max, scaleKey){
+    const it = interp(scaleKey, score);
+    return '<div class="score-pill sev'+it.sev+'"><b>'+score+'</b> / '+max+' &nbsp;·&nbsp; '+it.label+'</div>';
+  }
+
+  function renderItemOption(scaleObj, key, item, isLikert){
+    const wrap = document.createElement("div");
+    wrap.className="item";
+    const cur = scaleObj[item.id];
+    wrap.innerHTML = '<div class="item-label">'+item.label+'</div>' + (item.help? '<div class="item-help">'+item.help+'</div>':"");
+    const optsWrap = document.createElement("div");
+    optsWrap.className = isLikert? "likert-row":"opts";
+    item.opts.forEach(o=>{
+      const id = key+"_"+item.id+"_"+o.v;
+      const label = document.createElement("label");
+      label.className = "opt" + (cur===o.v? " checked":"");
+      label.setAttribute("for", id);
+      label.innerHTML = '<input type="radio" id="'+id+'" name="'+key+'_'+item.id+'" value="'+o.v+'" '+(cur===o.v?"checked":"")+'> '+o.l+' <span class="v-tag">valor '+o.v+'</span>';
+      label.querySelector("input").addEventListener("change", ()=>{
+        scaleObj[item.id] = o.v;
+        state._dirty = true;
+        renderAll();
+      });
+      optsWrap.appendChild(label);
+    });
+    wrap.appendChild(optsWrap);
+    return wrap;
+  }
+
+  const CLINICAL_TIPS = {
+    qmg: "Estándar de referencia en ensayos clínicos. Requiere examinador entrenado. Más objetivo que QOL.",
+    mgadl: "Refleja impacto funcional en la vida diaria. Auto-reportado o por cuidador. Correlaciona con calidad de vida.",
+    mgc: "Combina evaluación clínica (objetiva) y síntomas reportados. Útil para seguimiento rápido en clínica.",
+    qol: "Captura la carga psicosocial y emocional. Importante para decisiones de tratamiento holístico.",
+    mgfa: "Estadificación clínica (no puntuación). Predice pronóstico y guía tratamiento inicial. Crítica para clasificación."
+  };
+
+  function panelHeader(title, desc, score, max, scaleKey){
+    const head = document.createElement("div");
+    head.className="panel-head";
+    const tip = scaleKey && CLINICAL_TIPS[scaleKey]? '<span class="tooltip-wrap" style="margin-left:8px;">ℹ️<span class="tooltip-text">'+CLINICAL_TIPS[scaleKey]+'</span></span>' : '';
+    head.innerHTML = '<div><h2>'+title+tip+'</h2><p class="panel-desc">'+desc+'</p></div>' + (max? scorePillHTML(score,max,scaleKey):"");
+    return head;
+  }
+
+  function renderPatientPanel(container){
+    container.appendChild(panelHeader("Datos del paciente","Estos campos son opcionales y quedan únicamente en su navegador; no se transmiten a ningún servidor. Use un identificador no directamente reconocible cuando sea posible."));
+
+    const progressBar = document.createElement("div");
+    progressBar.style.marginBottom = "16px";
+    const overall = getOverallProgress();
+    const pct = Math.max(10, Math.min(100, overall));
+    progressBar.innerHTML = '<div style="font-size:12px; color:var(--ink-soft); margin-bottom:6px;">Progreso general: <strong>'+overall+'%</strong></div>'+
+      '<div style="height:8px; background:var(--border); border-radius:20px; overflow:hidden;"><div style="height:100%; width:'+pct+'%; background:var(--teal); border-radius:20px; transition:width .3s;"></div></div>';
+    container.appendChild(progressBar);
+
+    const info = document.createElement("div");
+    info.innerHTML = '<p style="color:var(--ink-soft); font-size:13.5px;">Complete los campos en la barra superior (identificador, edad, fecha, quién completa la evaluación) y luego avance por las escalas usando el menú de la izquierda. Puede volver a cualquier sección en cualquier momento; sus respuestas se conservan mientras la página permanezca abierta.</p>'+
+      '<div class="approx-flag" style="margin-top:16px;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M12 9v4M12 17h.01M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L14.71 3.86a2 2 0 0 0-3.42 0Z" stroke="#6B551A" stroke-width="1.6"/></svg><div>Recuerde: la clasificación MGC se presenta como estructura simplificada (10 dominios, 0–5 puntos) y MG-QOL15 con reactivos parafraseados. Ambas requieren verificación frente a las publicaciones originales antes de uso en investigación.</div></div>';
+    container.appendChild(info);
+    addNextButton(container, "mgfa", "Comenzar por la clasificación MGFA");
+  }
+
+  function renderMGFAPanel(container){
+    container.appendChild(panelHeader("Clasificación clínica de la MGFA","Sistema de estadificación (no es una escala de puntuación continua) para categorizar la gravedad y distribución anatómica de la debilidad."));
+    const grid = document.createElement("div");
+    grid.className="mgfa-grid";
+    MGFA.forEach(c=>{
+      const card = document.createElement("label");
+      card.className = "mgfa-card" + (state.mgfa===c.code? " checked":"");
+      card.innerHTML = '<input type="radio" name="mgfa" value="'+c.code+'" '+(state.mgfa===c.code?"checked":"")+'><span class="code">'+c.title+'</span><p>'+c.desc+'</p>';
+      card.querySelector("input").addEventListener("change", ()=>{ state.mgfa=c.code; state._dirty=true; renderAll(); });
+      grid.appendChild(card);
+    });
+    container.appendChild(grid);
+    addNavButtons(container, "patient", "qmg");
+  }
+
+  function renderScalePanel(container, opts){
+    const {title, desc, items, scaleObj, key, max, scaleKey, isLikert, approxNote, prev, next} = opts;
+    const r = key==="mgc"? sumScoreMGC() : sumScore(scaleObj, items);
+    container.appendChild(panelHeader(title, desc, r.sum, max, scaleKey));
+    if(approxNote){
+      const flag = document.createElement("div");
+      flag.className="approx-flag";
+      flag.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M12 9v4M12 17h.01M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L14.71 3.86a2 2 0 0 0-3.42 0Z" stroke="#6B551A" stroke-width="1.6"/></svg><div>'+approxNote+'</div>';
+      container.appendChild(flag);
+    }
+    items.forEach(it=>{
+      const itemDef = key==="mgc"? Object.assign({}, it, {opts:MGC_LEVELS}) : (key==="qol"? Object.assign({}, it, {opts:QOL_LEVELS}) : it);
+      container.appendChild(renderItemOption(scaleObj, key, itemDef, !!isLikert));
+    });
+    container.appendChild(document.createElement("div")); // spacer
+    addNavButtons(container, prev, next);
+  }
+
+  function addNavButtons(container, prevKey, nextKey){
+    const bar = document.createElement("div");
+    bar.className="panel-actions";
+    if(prevKey){
+      const b = document.createElement("button");
+      b.className="btn ghost"; b.type="button"; b.textContent="← Anterior";
+      b.addEventListener("click", ()=>{ active=prevKey; renderAll(); window.scrollTo({top:0,behavior:"smooth"}); });
+      bar.appendChild(b);
+    }
+    if(nextKey){
+      const b = document.createElement("button");
+      b.className="btn primary"; b.type="button"; b.textContent="Siguiente →";
+      b.addEventListener("click", ()=>{ active=nextKey; renderAll(); window.scrollTo({top:0,behavior:"smooth"}); });
+      bar.appendChild(b);
+    }
+    container.appendChild(bar);
+  }
+
+  function addNextButton(container, nextKey, label){
+    const bar = document.createElement("div");
+    bar.className="panel-actions";
+    const b = document.createElement("button");
+    b.className="btn primary"; b.type="button"; b.textContent=label+" →";
+    b.addEventListener("click", ()=>{ active=nextKey; renderAll(); });
+    bar.appendChild(b);
+    container.appendChild(bar);
+  }
+
+  function fmtDelta(v){
+    if(v>0) return "+"+v;
+    return String(v);
+  }
+
+  function renderSummaryPanel(container){
+    container.appendChild(panelHeader("Resumen y seguimiento longitudinal","Vista consolidada de la evaluación actual. Guarde evaluaciones sucesivas para comparar la evolución del paciente a lo largo del tiempo."));
+
+    const q = sumScore(state.qmg, QMG_ITEMS);
+    const a = sumScore(state.mgadl, MGADL_ITEMS);
+    const c = sumScoreMGC();
+    const l = sumScore(state.qol, QOL_ITEMS);
+
+    const grid = document.createElement("div");
+    grid.className="summary-grid";
+    const cards = [
+      {label:"Clasificación MGFA", val: state.mgfa || "—", of:"", scaleKey:null},
+      {label:"QMG", val:q.sum, of:"/ 39 · "+q.answered+"/"+q.total+" ítems", scaleKey:"qmg", max:39},
+      {label:"MGC (aproximada)", val:c.sum, of:"/ 50 · "+c.answered+"/"+c.total+" dominios", scaleKey:"mgc", max:50},
+      {label:"MG-ADL", val:a.sum, of:"/ 24 · "+a.answered+"/"+a.total+" ítems", scaleKey:"mgadl", max:24},
+      {label:"MG-QOL15", val:l.sum, of:"/ 60 · "+l.answered+"/"+l.total+" reactivos", scaleKey:"qol", max:60}
+    ];
+    cards.forEach(cd=>{
+      const card = document.createElement("div");
+      card.className="summary-card";
+      let interpHtml="";
+      let meterHtml="";
+      if(cd.scaleKey){
+        const it = interp(cd.scaleKey, cd.val);
+        interpHtml = '<span class="interp" style="background:var(--sev'+it.sev+'-bg); color:var(--sev'+it.sev+')">'+it.label+'</span>';
+        const pct = Math.min(100, Math.round((cd.val/cd.max)*100));
+        meterHtml = '<div class="meter"><div style="width:'+pct+'%; background:var(--sev'+it.sev+')"></div></div>';
+      }
+      card.innerHTML = '<h3>'+cd.label+'</h3><div class="big">'+cd.val+'</div><div class="of">'+cd.of+'</div>'+interpHtml+meterHtml;
+      grid.appendChild(card);
+    });
+    container.appendChild(grid);
+
+    // Save + export controls
+    const controls = document.createElement("div");
+    controls.className="panel-actions";
+    controls.style.justifyContent="flex-start";
+    controls.style.flexWrap="wrap";
+
+    const saveBtn = document.createElement("button");
+    saveBtn.className="btn teal"; saveBtn.type="button"; saveBtn.textContent="💾 Guardar esta evaluación en el historial";
+    saveBtn.addEventListener("click", saveAssessment);
+    controls.appendChild(saveBtn);
+
+    const exportBtn = document.createElement("button");
+    exportBtn.className="btn"; exportBtn.type="button"; exportBtn.textContent="⬇ Exportar historial (.json)";
+    exportBtn.addEventListener("click", exportHistory);
+    controls.appendChild(exportBtn);
+
+    const importLabel = document.createElement("label");
+    importLabel.className="btn"; importLabel.style.cursor="pointer";
+    importLabel.textContent="⬆ Cargar historial (.json)";
+    const importInput = document.createElement("input");
+    importInput.type="file"; importInput.accept="application/json";
+    importInput.addEventListener("change", importHistory);
+    importLabel.appendChild(importInput);
+    controls.appendChild(importLabel);
+
+    const printBtn = document.createElement("button");
+    printBtn.className="btn"; printBtn.type="button"; printBtn.textContent="🖨 Imprimir informe";
+    printBtn.addEventListener("click", ()=>window.print());
+    controls.appendChild(printBtn);
+
+    container.appendChild(controls);
+
+    // Trend chart
+    if(state.history.length >= 2){
+      const trendWrap = document.createElement("div");
+      trendWrap.style.marginTop = "26px";
+      const trendTitle = document.createElement("h3");
+      trendTitle.style.cssText = "font-family:var(--font-body); font-size:13px; text-transform:uppercase; letter-spacing:.05em; color:var(--ink-soft); margin-bottom:10px;";
+      trendTitle.textContent = "Gráfico de tendencias — últimas evaluaciones";
+      trendWrap.appendChild(trendTitle);
+      const trendChart = document.createElement("div");
+      trendChart.className = "trend-chart";
+      renderTrendChart(trendChart);
+      trendWrap.appendChild(trendChart);
+      container.appendChild(trendWrap);
+    }
+
+    // History table
+    const histWrap = document.createElement("div");
+    histWrap.style.marginTop="26px";
+    if(state.history.length===0){
+      histWrap.innerHTML = '<p style="color:var(--ink-faint); font-size:13px;">Aún no hay evaluaciones guardadas. Complete las escalas y use "Guardar esta evaluación" para iniciar el seguimiento longitudinal.</p>';
+    } else {
+      let rows = state.history.map((h,i)=>
+        '<tr><td><label class="row-check"><input type="checkbox" data-idx="'+i+'" class="cmpChk"> '+new Date(h.ts).toLocaleString()+'</label></td>'+
+        '<td>'+(h.patient.id||"—")+'</td><td>'+(h.mgfa||"—")+'</td>'+
+        '<td class="num">'+h.scores.qmg+'</td><td class="num">'+h.scores.mgc+'</td>'+
+        '<td class="num">'+h.scores.mgadl+'</td><td class="num">'+h.scores.qol+'</td>'+
+        '<td><button class="btn ghost delBtn" data-idx="'+i+'" type="button" style="padding:4px 8px; font-size:11px;">Eliminar</button></td></tr>'
+      ).join("");
+      histWrap.innerHTML = '<h3 style="font-family:var(--font-body); font-size:13px; text-transform:uppercase; letter-spacing:.05em; color:var(--ink-soft); margin-bottom:10px;">Historial de evaluaciones — seleccione dos para comparar</h3>'+
+        '<table class="history"><thead><tr><th>Fecha</th><th>ID</th><th>MGFA</th><th>QMG</th><th>MGC*</th><th>MG-ADL</th><th>QOL15</th><th></th></tr></thead><tbody>'+rows+'</tbody></table>'+
+        '<div class="panel-actions" style="justify-content:flex-start; border-top:none; padding-top:14px;"><button class="btn primary" id="compareBtn" type="button">Comparar seleccionadas</button></div>'+
+        '<div id="deltaHost"></div>';
+    }
+    container.appendChild(histWrap);
+
+    if(state.history.length>0){
+      container.querySelectorAll(".delBtn").forEach(b=>b.addEventListener("click", (e)=>{
+        const idx = parseInt(e.target.getAttribute("data-idx"),10);
+        state.history.splice(idx,1);
+        renderAll();
+      }));
+      const cmpBtn = container.querySelector("#compareBtn");
+      if(cmpBtn) cmpBtn.addEventListener("click", ()=>{
+        const checked = Array.from(container.querySelectorAll(".cmpChk:checked")).map(c=>parseInt(c.getAttribute("data-idx"),10));
+        renderComparison(container.querySelector("#deltaHost"), checked);
+      });
+    }
+
+    addNavButtons(container, "qol", null);
+  }
+
+  function renderComparison(host, idxs){
+    if(idxs.length!==2){
+      host.innerHTML = '<p style="color:var(--sev3); font-size:12.5px; margin-top:10px;">Seleccione exactamente dos evaluaciones del historial para comparar.</p>';
+      return;
+    }
+    idxs.sort((x,y)=> state.history[x].ts - state.history[y].ts);
+    const A = state.history[idxs[0]], B = state.history[idxs[1]];
+    const rows = [
+      {label:"QMG", a:A.scores.qmg, b:B.scores.qmg, mcid:3, lowerIsBetter:true},
+      {label:"MG-ADL", a:A.scores.mgadl, b:B.scores.mgadl, mcid:2, lowerIsBetter:true},
+      {label:"MGC*", a:A.scores.mgc, b:B.scores.mgc, mcid:null, lowerIsBetter:true},
+      {label:"MG-QOL15", a:A.scores.qol, b:B.scores.qol, mcid:null, lowerIsBetter:true}
+    ];
+    let cardsHtml = rows.map(r=>{
+      const d = r.b - r.a;
+      let tag="tag-stable", tagLabel="Sin umbral definido";
+      if(r.mcid!==null){
+        if(d<=-r.mcid){ tag="tag-improve"; tagLabel="Mejoría clínicamente relevante (≥"+r.mcid+" pts)"; }
+        else if(d>=r.mcid){ tag="tag-worsen"; tagLabel="Empeoramiento clínicamente relevante (≥"+r.mcid+" pts)"; }
+        else { tag="tag-stable"; tagLabel="Cambio no concluyente (<"+r.mcid+" pts)"; }
+      }
+      return '<div class="delta-item"><div class="lab">'+r.label+'</div><div class="val">'+r.a+' → '+r.b+' &nbsp;('+fmtDelta(d)+')</div><span class="tag '+tag+'">'+tagLabel+'</span></div>';
+    }).join("");
+    host.innerHTML = '<div class="delta-panel"><strong style="font-size:13px;">Comparación: '+new Date(A.ts).toLocaleDateString()+' → '+new Date(B.ts).toLocaleDateString()+'</strong>'+
+      '<div class="delta-grid">'+cardsHtml+'</div>'+
+      '<p style="font-size:11.5px; color:var(--ink-faint); margin-top:12px; margin-bottom:0;">Umbrales de cambio clínicamente relevante mostrados solo para QMG (≥2–3 puntos) y MG-ADL (≥2 puntos), consistentes con la literatura citada. Para MGC y MG-QOL15 no se muestra un umbral validado; interprete la magnitud del cambio con criterio clínico.</p></div>';
+  }
+
+  function renderTrendChart(container){
+    if(state.history.length < 2){
+      container.innerHTML = '<p style="color:var(--ink-faint); font-size:12px;">Se requieren mínimo 2 evaluaciones para mostrar tendencias.</p>';
+      return;
+    }
+    const sorted = [...state.history].sort((a,b)=>a.ts-b.ts);
+    const W = 600, H = 280, pad = 40;
+    const canvas = document.createElement("canvas");
+    canvas.width = W;
+    canvas.height = H;
+    canvas.style.maxWidth = "100%";
+    const ctx = canvas.getContext("2d");
+
+    const data = sorted.map(h=>({ts:h.ts, qmg:h.scores.qmg||0, mgadl:h.scores.mgadl||0, qol:h.scores.qol||0}));
+    const maxQMG = 39, maxADL = 24, maxQOL = 60;
+    const maxVal = Math.max(...data.flatMap(d=>[d.qmg, d.mgadl, d.qol])) || 1;
+
+    // Grid
+    ctx.strokeStyle = getComputedStyle(document.documentElement).getPropertyValue('--border');
+    ctx.lineWidth = 1;
+    for(let i=0; i<=5; i++){
+      const y = pad + (H-2*pad)*(i/5);
+      ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--ink-faint');
+      ctx.font = "11px var(--font-body)";
+      ctx.fillText(Math.round(maxVal*(5-i)/5), 2, y+4);
+      ctx.beginPath(); ctx.moveTo(pad, y); ctx.lineTo(W-pad, y); ctx.stroke();
+    }
+
+    // Lines
+    const colors = {qmg:"#C06A22", mgadl:"#0E7C7B", qol:"#1F3864"};
+    Object.keys(colors).forEach(key=>{
+      ctx.strokeStyle = colors[key];
+      ctx.lineWidth = 2.5;
+      ctx.beginPath();
+      data.forEach((d, i)=>{
+        const x = pad + (W-2*pad)*(i/(data.length-1));
+        const y = H-pad - (H-2*pad)*(d[key]/maxVal);
+        if(i===0) ctx.moveTo(x, y);
+        else ctx.lineTo(x, y);
+      });
+      ctx.stroke();
+      // Dots
+      data.forEach((d, i)=>{
+        const x = pad + (W-2*pad)*(i/(data.length-1));
+        const y = H-pad - (H-2*pad)*(d[key]/maxVal);
+        ctx.fillStyle = colors[key];
+        ctx.beginPath(); ctx.arc(x, y, 3.5, 0, 2*Math.PI); ctx.fill();
+      });
+    });
+
+    // Axes
+    ctx.strokeStyle = getComputedStyle(document.documentElement).getPropertyValue('--ink-faint');
+    ctx.lineWidth = 1.5;
+    ctx.beginPath(); ctx.moveTo(pad, pad); ctx.lineTo(pad, H-pad); ctx.lineTo(W-pad, H-pad); ctx.stroke();
+
+    // Dates
+    ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--ink-faint');
+    ctx.font = "10px var(--font-body)";
+    ctx.textAlign = "center";
+    data.forEach((d, i)=>{
+      const x = pad + (W-2*pad)*(i/(data.length-1));
+      const date = new Date(d.ts).toLocaleDateString("es", {month:"short", day:"numeric"});
+      ctx.fillText(date, x, H-pad+16);
+    });
+
+    container.appendChild(canvas);
+
+    // Legend
+    const legend = document.createElement("div");
+    legend.className = "trend-legend";
+    legend.innerHTML = '<div class="trend-legend-item"><div class="trend-legend-dot" style="background:#C06A22;"></div><span>QMG (0–39)</span></div>'+
+      '<div class="trend-legend-item"><div class="trend-legend-dot" style="background:#0E7C7B;"></div><span>MG-ADL (0–24)</span></div>'+
+      '<div class="trend-legend-item"><div class="trend-legend-dot" style="background:#1F3864;"></div><span>MG-QOL15 (0–60)</span></div>';
+    container.appendChild(legend);
+  }
+
+  /* ================= HISTORY PERSISTENCE (in-memory + explicit file export/import; no browser storage APIs) ================= */
+
+  function saveAssessment(){
+    const q = sumScore(state.qmg, QMG_ITEMS).sum;
+    const a = sumScore(state.mgadl, MGADL_ITEMS).sum;
+    const c = sumScoreMGC().sum;
+    const l = sumScore(state.qol, QOL_ITEMS).sum;
+    state.history.push({
+      ts: Date.now(),
+      patient: Object.assign({}, state.patient),
+      mgfa: state.mgfa,
+      scores:{qmg:q, mgadl:a, mgc:c, qol:l},
+      detail:{qmg:Object.assign({},state.qmg), mgadl:Object.assign({},state.mgadl), mgc:Object.assign({},state.mgc), qol:Object.assign({},state.qol)}
+    });
+    state._dirty = false;
+    renderAll();
+  }
+
+  function exportHistory(){
+    const blob = new Blob([JSON.stringify({exportedAt:new Date().toISOString(), history:state.history}, null, 2)], {type:"application/json"});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    const idPart = (state.patient.id||"paciente").replace(/[^a-z0-9\-_]/gi,"_");
+    a.href = url; a.download = "panel-mg-historial-"+idPart+".json";
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  }
+
+  function importHistory(e){
+    const file = e.target.files[0];
+    if(!file) return;
+    const reader = new FileReader();
+    reader.onload = function(ev){
+      try{
+        const data = JSON.parse(ev.target.result);
+        if(Array.isArray(data.history)){
+          state.history = state.history.concat(data.history);
+          renderAll();
+        } else {
+          alert("El archivo no tiene el formato esperado (se esperaba un campo 'history').");
+        }
+      }catch(err){
+        alert("No se pudo leer el archivo. Verifique que sea un JSON exportado por esta herramienta.");
+      }
+    };
+    reader.readAsText(file);
+  }
+
+  /* ================= MAIN RENDER ================= */
+
+  function renderAll(){
+    renderNav();
+    const panel = document.getElementById("panel");
+    panel.innerHTML = "";
+    if(active==="patient") renderPatientPanel(panel);
+    else if(active==="mgfa") renderMGFAPanel(panel);
+    else if(active==="qmg") renderScalePanel(panel, {title:"QMG — Quantitative Myasthenia Gravis", desc:"Evaluación cuantitativa y objetiva realizada por el examinador. Estándar de referencia en ensayos clínicos. 13 ítems, 0–3 puntos cada uno.", items:QMG_ITEMS, scaleObj:state.qmg, key:"qmg", max:39, scaleKey:"qmg", prev:"mgfa", next:"mgc"});
+    else if(active==="mgc") renderScalePanel(panel, {title:"MGC — Myasthenia Gravis Composite (estructura aproximada)", desc:"Escala híbrida que combina hallazgos del examen físico con síntomas referidos por el paciente.", items:MGC_ITEMS, scaleObj:state.mgc, key:"mgc", max:50, scaleKey:"mgc", prev:"qmg", next:"mgadl", approxNote:"Estructura simplificada con fines de seguimiento: 10 dominios × 0–5 puntos (máx. 50), en lugar de las ponderaciones exactas por ítem de la publicación original de Burns et al. Verifique la versión validada antes de uso en investigación."})
+    else if(active==="mgadl") renderScalePanel(panel, {title:"MG-ADL — Actividades de la Vida Diaria", desc:"Cuestionario de 8 preguntas que evalúa el impacto funcional cotidiano, respondido por el paciente o su cuidador.", items:MGADL_ITEMS, scaleObj:state.mgadl, key:"mgadl", max:24, scaleKey:"mgadl", prev:"mgc", next:"qol"});
+    else if(active==="qol") renderScalePanel(panel, {title:"MG-QOL15 — Calidad de vida", desc:"Cuestionario de 15 reactivos sobre el impacto de la enfermedad en la calidad de vida relacionada con la salud.", items:QOL_ITEMS, scaleObj:state.qol, key:"qol", max:60, scaleKey:"qol", isLikert:true, prev:"mgadl", next:"summary", approxNote:"Los reactivos se presentan parafraseados a partir de los dominios conceptuales habituales del instrumento (autonomía, vida social, estado de ánimo, carga familiar, incertidumbre por fluctuación de síntomas), y no reproducen el texto exacto con derechos de autor de la versión original (MG-QOL15r, Burns et al.)."});
+    else if(active==="summary") renderSummaryPanel(panel);
+    drawWaveform();
+    clearCacheIfDirty();
+    saveStateToStorage();
+  }
+
+  // Patient bar bindings
+  ["pId","pAge","pDate","pBy"].forEach(id=>{
+    document.getElementById(id).addEventListener("input", (e)=>{
+      const map={pId:"id",pAge:"age",pDate:"date",pBy:"by"};
+      state.patient[map[id]] = e.target.value;
+      state._dirty = true;
+    });
+    document.getElementById(id).addEventListener("change", (e)=>{
+      const map={pId:"id",pAge:"age",pDate:"date",pBy:"by"};
+      state.patient[map[id]] = e.target.value;
+      state._dirty = true;
+    });
+  });
+  document.getElementById("pDate").valueAsDate = new Date();
+  state.patient.date = document.getElementById("pDate").value;
+
+  document.getElementById("printLink").addEventListener("click", (e)=>{ e.preventDefault(); active="summary"; renderAll(); setTimeout(()=>window.print(), 60); });
+
+  // Warn before leaving if unsaved changes
+  window.addEventListener("beforeunload", (e)=>{
+    if(state._dirty){
+      e.preventDefault();
+      e.returnValue = "Tienes cambios sin guardar en el historial. ¿Deseas salir?";
+      return e.returnValue;
+    }
+  });
+
+  // Dark mode toggle
+  function initDarkMode(){
+    const darkToggle = document.createElement("button");
+    darkToggle.className = "dark-toggle";
+    darkToggle.type = "button";
+    darkToggle.setAttribute("aria-label", "Cambiar modo oscuro");
+    const prefersLight = localStorage.getItem('panel-mg-dark-mode') === 'true';
+    if(prefersLight) document.body.classList.add('dark-mode');
+    darkToggle.textContent = prefersLight? '☀️' : '🌙';
+    darkToggle.addEventListener("click", ()=>{
+      const isDark = document.body.classList.toggle('dark-mode');
+      localStorage.setItem('panel-mg-dark-mode', isDark);
+      darkToggle.textContent = isDark? '☀️' : '🌙';
+    });
+    document.body.appendChild(darkToggle);
+  }
+
+  // Load saved state and render
+  loadStateFromStorage();
+  initDarkMode();
+  renderAll();
+})();
+</script>
+</body>
+</html>
